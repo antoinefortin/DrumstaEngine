@@ -2,7 +2,7 @@
 
 > To the friends we love, yet nearly enough.  To the renderer we craft,
 > that are never perfect
-<img width="500" height="250" alt="image" src="https://github.com/user-attachments/assets/aaef37dc-972e-432e-a54a-42d4564781e2" />
+<img width="512" height="512" alt="image" src="https://github.com/user-attachments/assets/aaef37dc-972e-432e-a54a-42d4564781e2" />
 
 ## **TODO**
 
