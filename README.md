@@ -3,6 +3,7 @@
 
 > To the friends we love, yet nearly enough.  To the renderer we craft,
 > that are never perfect
+<img width="1092" height="975" alt="image" src="https://github.com/user-attachments/assets/6783d5ce-6bb3-4a6f-9b74-52df1335283f" />
 
 **TODO**
 As of tonight 28 august 2026
