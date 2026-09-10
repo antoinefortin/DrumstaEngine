@@ -2,7 +2,17 @@
 
 #include <vector>
 
+///  INPUT 
+enum KeyboardMode
+{
+    WASD = 0,
+    QWASED,
+    WASD_ARROW,
+};
+/// INPUT
 
+
+/// Rendering
 struct Vertex
 {
     float x, y, z;
@@ -21,7 +31,6 @@ struct Mesh
 
 };
 
-
 struct DrawColor
 {
     float red;
@@ -30,3 +39,5 @@ struct DrawColor
     float padding1;
 
 };
+
+/// Rendering

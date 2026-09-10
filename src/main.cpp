@@ -1,13 +1,3 @@
-/*
-    TODO
-    -> Pass data std::vector in constructor of importer
-
-*/
-
-
-
-
-
 #define NOMINMAX
 #include <string>
 #include <fstream>
@@ -22,14 +12,16 @@
 
 
 
-#include "Importer/AssetImporter.h"
-#include "Datas/DatasType.h"
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+// AFTER
+#include "Importer/AssetImporter.h"
+#include "Datas/DatasType.h"
+#include "Engine/Gameplay/Input/KeyboardInput.h"
 
 
 typedef GLuint gint;
@@ -136,6 +128,10 @@ std::vector<DrawMetadata> drawMetadata;
 std::vector<DrawColor> drawColor;
 std::vector<glm::mat4x4> transforms;
 
+
+// KEYBOARD
+
+//
 
 std::string readFileToString(const std::string& path)
 {
@@ -519,6 +515,23 @@ void render(const glm::mat4& viewProj)
 
 
 
+
+
+
+void processInput(
+    GLFWwindow* win,
+    glm::vec3& camera
+)
+{
+    if (glfwGetKey(win, GLFW_KEY_W) == GLFW_PRESS) {
+
+    }
+
+    if (glfwGetKey(win, GLFW_KEY_S) == GLFW_PRESS) {
+        camera.z += 0.05f;
+    }
+}
+
 int main()
 {
 
@@ -529,8 +542,11 @@ int main()
 
 
     initScene();
+    KeyboardInput input(window); // 
+
 
     glEnable(GL_DEPTH_TEST);
+    glm::vec3 cameraPos = glm::vec3(0.0f, 2.0f, 18.0f);   
 
     while (!glfwWindowShouldClose(window))
     {
@@ -538,11 +554,28 @@ int main()
         glClearColor(0.1f, 0.1f, 0.12f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glm::mat4 view = glm::lookAt(glm::vec3(0, 2, 8), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+        //processInput(window, cameraPos);
+        if (KeyboardInput::IsKeyPressed(GLFW_KEY_W))
+        {
+            cameraPos.z -= 0.05f;
+        }
+
+        if (KeyboardInput::IsKeyPressed(GLFW_KEY_S))
+        {
+            cameraPos.z += 0.05f;
+        }
+
+        glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f); 
+        glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+        glm::mat4 view = glm::lookAt(cameraPos, cameraFront, cameraUp);
         glm::mat4 proj = glm::perspective(glm::radians(45.0f),
             (float)windowWidth / (float)windowHeight,
             0.1f, 100.0f);
         glm::mat4 viewProj = proj * view;
+        // Move forward
+
+
 
         render(viewProj);
 
