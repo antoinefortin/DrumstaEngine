@@ -56,3 +56,24 @@ CPU_Color Texture::GetPixelColor(const int& _x, const int& _y)
 
     return res;
 }
+
+
+bool Texture::SaveToFile(const std::string& path) const
+{
+    if (textureData == nullptr)
+    {
+        std::cerr << "Cannot save texture: textureData is null." << std::endl;
+        return false;
+    }
+
+    int result = stbi_write_png(path.c_str(), width, height,4,textureData, width * 4);
+
+    if (result == 0)
+    {
+        std::cerr << "Failed to save texture: " << path << std::endl;
+        return false;
+    }
+
+    std::cout << "Texture saved: " << path << std::endl;
+    return true;
+}

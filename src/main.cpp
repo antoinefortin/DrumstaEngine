@@ -25,6 +25,7 @@
 #include "Engine/Rendering/OpenGL/Texture.h"
 
 #include <stb_image.h>
+#include <stb_image_write.h>
 
 typedef GLuint gint;
 GLFWwindow* window{ nullptr };
@@ -578,8 +579,10 @@ int main()
         CPU_Color curr = testSampling[i];
         std::cout << "R: " << curr.r << " G: " << curr.g << "B: " << curr.b << std::endl;
     }
+
+    textureTest.SaveToFile("Assets/Textures/poney.png");
 //    std::cout << textureTest.GetPixelColor(0, 0).r << ;
-    return 0;
+    //return 0;
 
 
 

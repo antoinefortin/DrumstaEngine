@@ -10,11 +10,13 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL 4.0)
     set(CMAKE_POLICY_VERSION_MINIMUM 3.5 CACHE STRING "" FORCE)
 endif()
 
+# Static libraries
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 
-# ---------------------------------------------------------
-# Output folder
-# ---------------------------------------------------------
+
+# =========================================================
+# OUTPUT
+# =========================================================
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY
     "${CMAKE_BINARY_DIR}/bin"
@@ -28,14 +30,15 @@ foreach(_cfg IN ITEMS DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
 endforeach()
 
 
-# ---------------------------------------------------------
-# Dependencies
-# ---------------------------------------------------------
+# =========================================================
+# DEPENDENCIES
+# =========================================================
 
 include(FetchContent)
 
 
-# GLFW
+# ---------------- GLFW ----------------
+
 FetchContent_Declare(
     glfw
     GIT_REPOSITORY https://github.com/glfw/glfw.git
@@ -49,7 +52,8 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 
 
-# GLM
+# ---------------- GLM ----------------
+
 FetchContent_Declare(
     glm
     GIT_REPOSITORY https://github.com/g-truc/glm.git
@@ -61,7 +65,8 @@ set(GLM_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLM_BUILD_INSTALL OFF CACHE BOOL "" FORCE)
 
 
-# ASSIMP
+# ---------------- ASSIMP ----------------
+
 FetchContent_Declare(
     assimp
     GIT_REPOSITORY https://github.com/assimp/assimp.git
@@ -101,7 +106,6 @@ FetchContent_MakeAvailable(
     assimp
 )
 
-
 if(MSVC)
     target_compile_options(assimp PRIVATE /W0)
 else()
@@ -109,16 +113,16 @@ else()
 endif()
 
 
-# ---------------------------------------------------------
-# OpenGL
-# ---------------------------------------------------------
+# =========================================================
+# OPENGL
+# =========================================================
 
 find_package(OpenGL REQUIRED)
 
 
-# ---------------------------------------------------------
+# =========================================================
 # GLAD
-# ---------------------------------------------------------
+# =========================================================
 
 add_library(
     glad STATIC
@@ -136,9 +140,9 @@ target_link_libraries(
 )
 
 
-# ---------------------------------------------------------
+# =========================================================
 # STB IMAGE
-# ---------------------------------------------------------
+# =========================================================
 
 add_library(
     stb_image STATIC
@@ -150,22 +154,43 @@ target_include_directories(
     "${CMAKE_CURRENT_SOURCE_DIR}/external/stb"
 )
 
+
+# =========================================================
+# STB IMAGE WRITE
+# =========================================================
+
+add_library(
+    stb_image_write STATIC
+    external/stb/stb_image_write_impl.c
+)
+
+target_include_directories(
+    stb_image_write PUBLIC
+    "${CMAKE_CURRENT_SOURCE_DIR}/external/stb"
+)
+
+
 if(MSVC)
+
     target_compile_definitions(
         stb_image PRIVATE
         _CRT_SECURE_NO_WARNINGS
     )
 
-    target_compile_options(
-        stb_image PRIVATE
-        /W0
+    target_compile_definitions(
+        stb_image_write PRIVATE
+        _CRT_SECURE_NO_WARNINGS
     )
+
+    target_compile_options(stb_image PRIVATE /W0)
+    target_compile_options(stb_image_write PRIVATE /W0)
+
 endif()
 
 
-# ---------------------------------------------------------
-# Source files
-# ---------------------------------------------------------
+# =========================================================
+# SOURCE FILES
+# =========================================================
 
 file(
     GLOB_RECURSE SRC_FILES
@@ -180,18 +205,17 @@ file(
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.inl"
 )
 
-
 if(NOT SRC_FILES)
     message(
         FATAL_ERROR
-        "No source files found in src/"
+        "No source files found inside src/"
     )
 endif()
 
 
-# ---------------------------------------------------------
-# Assets
-# ---------------------------------------------------------
+# =========================================================
+# ASSETS
+# =========================================================
 
 file(
     GLOB_RECURSE ASSET_FILES
@@ -201,9 +225,9 @@ file(
 )
 
 
-# ---------------------------------------------------------
-# Executable
-# ---------------------------------------------------------
+# =========================================================
+# EXECUTABLE
+# =========================================================
 
 add_executable(
     ${PROJECT_NAME}
@@ -213,7 +237,7 @@ add_executable(
 )
 
 
-# Lets you do things such as:
+# Allows:
 #
 # #include "Importer/AssetImporter.h"
 # #include "Engine/Rendering/OpenGL/Texture.h"
@@ -226,15 +250,16 @@ target_include_directories(
 )
 
 
-# ---------------------------------------------------------
-# Visual Studio organization
-# ---------------------------------------------------------
+# =========================================================
+# VISUAL STUDIO FOLDERS
+# =========================================================
 
 source_group(
     TREE "${CMAKE_CURRENT_SOURCE_DIR}/src"
     PREFIX "Source"
     FILES ${SRC_FILES}
 )
+
 
 if(ASSET_FILES)
 
@@ -244,7 +269,7 @@ if(ASSET_FILES)
         FILES ${ASSET_FILES}
     )
 
-    # Do not try to compile images/shaders/models
+    # Models, textures and shaders are NOT C++ source files
     set_source_files_properties(
         ${ASSET_FILES}
         PROPERTIES
@@ -254,9 +279,9 @@ if(ASSET_FILES)
 endif()
 
 
-# ---------------------------------------------------------
-# Libraries
-# ---------------------------------------------------------
+# =========================================================
+# LINK LIBRARIES
+# =========================================================
 
 target_link_libraries(
     ${PROJECT_NAME}
@@ -265,15 +290,18 @@ target_link_libraries(
     glfw
     glad
     glm::glm
+
     stb_image
+    stb_image_write
+
     assimp::assimp
     OpenGL::GL
 )
 
 
-# ---------------------------------------------------------
-# Visual Studio
-# ---------------------------------------------------------
+# =========================================================
+# VISUAL STUDIO SETTINGS
+# =========================================================
 
 if(MSVC)
 
@@ -300,9 +328,9 @@ if(MSVC)
 endif()
 
 
-# ---------------------------------------------------------
-# Copy entire Assets folder beside executable
-# ---------------------------------------------------------
+# =========================================================
+# COPY ASSETS BESIDE EXECUTABLE
+# =========================================================
 
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Assets")
 
