@@ -11,18 +11,20 @@
 #include <algorithm>
 
 
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+
 // AFTER
 #include "Importer/AssetImporter.h"
 #include "Datas/DatasType.h"
 #include "Engine/Gameplay/Input/KeyboardInput.h"
+#include "Engine/Rendering/OpenGL/Texture.h"
 
+#include <stb_image.h>
 
 typedef GLuint gint;
 GLFWwindow* window{ nullptr };
@@ -515,25 +517,69 @@ void render(const glm::mat4& viewProj)
 
 
 
+void HandleCameraMovement(
+    const KeyboardInput& inputDevice,
+    glm::vec3& cameraPos,
+    const float& camMovementSpeed
 
-
-
-void processInput(
-    GLFWwindow* win,
-    glm::vec3& camera
 )
 {
-    if (glfwGetKey(win, GLFW_KEY_W) == GLFW_PRESS) {
 
-    }
+        //processInput(window, cameraPos);
+        // -Z is away froim screren
+        if (KeyboardInput::IsKeyPressed(GLFW_KEY_W))
+        {
+            cameraPos.z -= camMovementSpeed;
+        }
+        // +Z is into the screen
+        if (KeyboardInput::IsKeyPressed(GLFW_KEY_S))
+        {
+            cameraPos.z += camMovementSpeed;
+        }
 
-    if (glfwGetKey(win, GLFW_KEY_S) == GLFW_PRESS) {
-        camera.z += 0.05f;
-    }
+        // -x is left
+        if (KeyboardInput::IsKeyPressed(GLFW_KEY_A))
+        {
+            cameraPos.x -= camMovementSpeed;
+        }
+        // +x is right
+        if (KeyboardInput::IsKeyPressed(GLFW_KEY_D))
+        {
+            cameraPos.x += camMovementSpeed;
+        }
+
+        // Up 
+        if (KeyboardInput::IsKeyPressed(GLFW_KEY_Q))
+        {
+            cameraPos.y += camMovementSpeed;
+        }
+        // Down
+        if (KeyboardInput::IsKeyPressed(GLFW_KEY_E))
+        {
+            cameraPos.y -= camMovementSpeed;
+        }
 }
 
 int main()
 {
+
+
+
+    Texture textureTest{"Assets/Textures/debug.png"};
+    // test
+    std::vector<CPU_Color> testSampling{};
+    testSampling.reserve(3);
+    testSampling.push_back(textureTest.GetPixelColor(1, 0)); // (255, 0 , 0 )
+    testSampling.push_back(textureTest.GetPixelColor(45, 0));// (0, 255 , 0 )
+    testSampling.push_back(textureTest.GetPixelColor(1, 35));// (0, 0, 255)
+
+    for (int i{}; i < testSampling.size(); i++)
+    {
+        CPU_Color curr = testSampling[i];
+        std::cout << "R: " << curr.r << " G: " << curr.g << "B: " << curr.b << std::endl;
+    }
+//    std::cout << textureTest.GetPixelColor(0, 0).r << ;
+    return 0;
 
 
 
@@ -542,11 +588,12 @@ int main()
 
 
     initScene();
+    glm::vec3 cameraPos = glm::vec3(0.0f, 2.0f, 18.0f);
     KeyboardInput input(window); // 
 
 
     glEnable(GL_DEPTH_TEST);
-    glm::vec3 cameraPos = glm::vec3(0.0f, 2.0f, 18.0f);   
+
 
     while (!glfwWindowShouldClose(window))
     {
@@ -554,16 +601,7 @@ int main()
         glClearColor(0.1f, 0.1f, 0.12f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        //processInput(window, cameraPos);
-        if (KeyboardInput::IsKeyPressed(GLFW_KEY_W))
-        {
-            cameraPos.z -= 0.05f;
-        }
-
-        if (KeyboardInput::IsKeyPressed(GLFW_KEY_S))
-        {
-            cameraPos.z += 0.05f;
-        }
+        HandleCameraMovement(input, cameraPos, 0.25f);
 
         glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f); 
         glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -573,9 +611,6 @@ int main()
             (float)windowWidth / (float)windowHeight,
             0.1f, 100.0f);
         glm::mat4 viewProj = proj * view;
-        // Move forward
-
-
 
         render(viewProj);
 

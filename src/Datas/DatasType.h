@@ -13,6 +13,11 @@ enum KeyboardMode
 
 
 /// Rendering
+struct CPU_Color
+{
+    float r, g, b;
+};
+
 struct Vertex
 {
     float x, y, z;
