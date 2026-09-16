@@ -130,7 +130,7 @@ std::vector<DrawArraysIndirectCommand> drawCommands;
 std::vector<DrawMetadata> drawMetadata;
 std::vector<DrawColor> drawColor;
 std::vector<glm::mat4x4> transforms;
-
+std::vector<Texture> textures;
 
 // KEYBOARD
 
@@ -566,7 +566,19 @@ int main()
 
 
 
-    Texture textureTest{"Assets/Textures/debug.png"};
+   /*
+
+   
+    GLuint handle = textureTest.getGPUHandle();
+    bool isUplaoded = textureTest.existOnGpu();
+    if (isUplaoded)
+    {
+        std::cout << "Isd on GPU : " << "GPU Texture ID: " << handle << std::endl;
+    }
+    else
+    {
+        std::cout << "Not uploaded" << std::endl;
+    }
     // test
     std::vector<CPU_Color> testSampling{};
     testSampling.reserve(3);
@@ -579,8 +591,14 @@ int main()
         CPU_Color curr = testSampling[i];
         std::cout << "R: " << curr.r << " G: " << curr.g << "B: " << curr.b << std::endl;
     }
-
+    
     textureTest.SaveToFile("Assets/Textures/poney.png");
+    */
+    //textureTest.UploadToGpu();
+
+
+    // test texture upl;oad to GPU
+    // 
 //    std::cout << textureTest.GetPixelColor(0, 0).r << ;
     //return 0;
 
@@ -590,6 +608,15 @@ int main()
         return -1;
 
 
+    Texture textureTest{ "Assets/Textures/debug.png" };
+    textureTest.UploadToGpu();
+    if (textureTest.existOnGpu())
+    {
+        std::cout << "Texture data existe on GPU Vram :" << std::endl;
+        std::cout << "       GPUHandleID  -> " << (int)textureTest.getGPUHandle() << std::endl;
+    }
+
+        
     initScene();
     glm::vec3 cameraPos = glm::vec3(0.0f, 2.0f, 18.0f);
     KeyboardInput input(window); // 

@@ -9,19 +9,31 @@ Texture::Texture()
     
 }
 
-
 Texture::Texture(const std::string& path)
+    : textureData(nullptr),
+    width(0),
+    height(0),
+    channels(0),
+    gpuTextureID(0),
+    textureFormat(GL_RGB)
 {
     TexturePath = path;
-    textureData =  stbi_load(path.c_str(), &width, &height, &channels, 4);
-    if (textureData == NULL) {
-        printf("Failed to load image: %s\n", stbi_failure_reason());
+
+    textureData = stbi_load(path.c_str(),&width,&height,&channels,0);
+
+    if (!textureData)
+    {
+        std::cerr << "Failed to load image: "
+            << stbi_failure_reason()
+            << std::endl;
         return;
     }
+
+    setTextureFormat();
+
     ShowTextureInfos();
-
-
 }
+
 
 void Texture::ShowTextureInfos()
 {
@@ -56,7 +68,10 @@ CPU_Color Texture::GetPixelColor(const int& _x, const int& _y)
 
     return res;
 }
-
+GLuint Texture::getGPUHandle()
+{
+    return gpuTextureID;
+}
 
 bool Texture::SaveToFile(const std::string& path) const
 {
@@ -66,7 +81,11 @@ bool Texture::SaveToFile(const std::string& path) const
         return false;
     }
 
-    int result = stbi_write_png(path.c_str(), width, height,4,textureData, width * 4);
+    int result = stbi_write_png(path.c_str(),width,height,channels,
+        textureData,
+        width * channels
+    );
+
 
     if (result == 0)
     {
@@ -76,4 +95,79 @@ bool Texture::SaveToFile(const std::string& path) const
 
     std::cout << "Texture saved: " << path << std::endl;
     return true;
+}
+
+void Texture::UploadToGpu()
+{
+    if (!textureData) { return; }
+    if (gpuTextureID == 0) { glGenTextures(1, &gpuTextureID); }
+
+    glBindTexture(GL_TEXTURE_2D, gpuTextureID);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexImage2D(GL_TEXTURE_2D,0,textureFormat,width,height,0,textureFormat,GL_UNSIGNED_BYTE,textureData);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void Texture::setTextureFormat()
+{
+    switch (channels)
+    {
+    case 1:
+        textureFormat = GL_RED;
+        break;
+
+    case 2:
+        textureFormat = GL_RG;
+        break;
+
+    case 3:
+        textureFormat = GL_RGB;
+        break;
+
+    case 4:
+        textureFormat = GL_RGBA;
+        break;
+
+    default:
+        std::cerr << "Unsupported channel count: "
+            << channels << std::endl;
+        textureFormat = GL_RGBA;
+        break;
+    }
+}
+
+
+//https://wikis.khronos.org/opengl/Pixel_Transfer#Pixel_layout
+void Texture::setTextureAlligmentForRGB()
+{
+    if (textureFormat == GL_RGB)
+    {
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    }
+}
+
+bool Texture::existOnGpu()
+{
+    return glIsTexture(gpuTextureID) ? true : false;
+}
+
+
+Texture::~Texture()
+{
+    if (textureData)
+    {
+        stbi_image_free(textureData);
+        textureData = nullptr;
+    }
+
+    if (gpuTextureID != 0)
+    {
+        glDeleteTextures(1, &gpuTextureID);
+        gpuTextureID = 0;
+    }
 }
