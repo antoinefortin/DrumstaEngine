@@ -51,6 +51,7 @@ void Shader::createShaderProgram()
     glGetProgramiv(program, GL_LINK_STATUS, &linkSuccess);
     if (program != 0)
     {
+        std::cout << "Shader Compiled Shader id " << shaderID << std::endl;
         shaderID = (program);
     }
 

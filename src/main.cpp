@@ -134,97 +134,6 @@ std::vector<glm::mat4x4> transforms;
 std::vector<Texture> textures;
 
 
-std::string readFileToString(const std::string& path)
-{
-    std::ifstream file(path);
-    if (!file.is_open())
-    {
-        std::cerr << "Failed to open shader file: " << path << "\n";
-        return "";
-    }
-
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    return buffer.str();
-}
-GLuint compileShaderStage(const std::string& source, GLenum shaderType, const std::string& debugPath)
-{
-    GLuint shader = glCreateShader(shaderType);
-    const char* src = source.c_str();
-
-    glShaderSource(shader, 1, &src, nullptr);
-    glCompileShader(shader);
-
-    GLint success = 0;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-
-    if (!success)
-    {
-        GLint logLength = 0;
-        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
-
-        std::vector<char> log(logLength > 0 ? logLength : 1);
-        glGetShaderInfoLog(shader, logLength, nullptr, log.data());
-
-        std::cerr << "Shader compile error (" << debugPath << "):\n" << log.data() << "\n";
-
-        glDeleteShader(shader);
-        return 0;
-    }
-    return shader;
-}
-GLuint createShaderProgram(const std::string& vertexPath, const std::string& fragmentPath)
-{
-    std::string vertexSource = readFileToString(vertexPath);
-    std::string fragmentSource = readFileToString(fragmentPath);
-
-    if (vertexSource.empty() || fragmentSource.empty())
-    {
-        std::cerr << "Failed to load shader source(s), aborting program creation.\n";
-        return 0;
-    }
-
-    GLuint vertexShader = compileShaderStage(vertexSource, GL_VERTEX_SHADER, vertexPath);
-    GLuint fragmentShader = compileShaderStage(fragmentSource, GL_FRAGMENT_SHADER, fragmentPath);
-
-    if (vertexShader == 0 || fragmentShader == 0)
-    {
-        if (vertexShader) glDeleteShader(vertexShader);
-        if (fragmentShader) glDeleteShader(fragmentShader);
-        return 0;
-    }
-
-    GLuint program = glCreateProgram();
-    glAttachShader(program, vertexShader);
-    glAttachShader(program, fragmentShader);
-    glLinkProgram(program);
-
-    GLint linkSuccess = 0;
-    glGetProgramiv(program, GL_LINK_STATUS, &linkSuccess);
-    if (!linkSuccess)
-    {
-        GLint logLength = 0;
-        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logLength);
-
-        std::vector<char> log(logLength > 0 ? logLength : 1);
-        glGetProgramInfoLog(program, logLength, nullptr, log.data());
-
-        std::cerr << "Shader link error (" << vertexPath << " + " << fragmentPath << "):\n" << log.data() << "\n";
-
-        glDeleteProgram(program);
-        program = 0;
-    }
-
-    if (program != 0)
-    {
-        shaderPrograms.push_back(program);
-    }
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-
-    return program;
-}
 
 std::vector<std::string> vertexShaders{
     "Shaders/vertex.shader",
@@ -235,17 +144,6 @@ std::vector<std::string> fragmentShaders{
     "Shaders/frag.shader",
     "Shaders/newfrag.shader"
 };
-
-bool loadAndCreateShader()
-{
-
-    GLuint program{};
-    for (int i{}; i < vertexShaders.size(); i++)
-    {
-        program = createShaderProgram(vertexShaders[i], fragmentShaders[i]);
-    }
-    return program != 0;
-}
 
 
 
@@ -452,9 +350,12 @@ void initScene()
     Shader shader(vertexShaders[0], fragmentShaders[0]);
     shader.createShaderProgram();
     GLuint gpuShaderDI = shader.getGPUID();
-
-
-    return;
+    shaderPrograms.push_back(gpuShaderDI);
+    /*
+        That Shit needs refactor so SSBO class 
+        THIS IS NEEDED AS FUCKING SOON AS POSSIBLE
+        HARDCODED SHIT
+    */
  //   createMeshData();
 
     uint32_t runningVertexOffset{ 0 };
@@ -494,7 +395,9 @@ void initScene()
 }
 void render(const glm::mat4& viewProj)
 {
-    glUseProgram(shaderPrograms[0]);
+
+    std::cout << 1;
+    glUseProgram(shaderPrograms[0]); 
 
     GLint locViewProj = glGetUniformLocation(shaderPrograms[0], "viewProj");
     glUniformMatrix4fv(locViewProj, 1, GL_FALSE, glm::value_ptr(viewProj));
