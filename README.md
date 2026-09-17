@@ -4,7 +4,16 @@
 > that are never perfect
 <img width="256" height="256" alt="image" src="https://github.com/user-attachments/assets/aaef37dc-972e-432e-a54a-42d4564781e2" />
 
-## **  TODO**
+## **State**
+
+ 1.  ASbsatraction for shader and textures
+ 2.  Made the build sytem handle the asserts on the repo
+ 3.  OpenGL defined runtime and backend
+ 4.  Ratchet Audio engine 
+ 5.  SSBO from the above class
+
+ 6.  
+## **TODO**
 
 As of tonight 27 september 2026
 
