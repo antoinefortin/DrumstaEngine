@@ -27,17 +27,11 @@ set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 # OUTPUT
 # =========================================================
 
-# Executable will always be generated in:
-#
-# build/bin/graphicsbox.exe
-#
 set(
     CMAKE_RUNTIME_OUTPUT_DIRECTORY
     "${CMAKE_BINARY_DIR}/bin"
 )
 
-# Visual Studio / multi-config generators normally create
-# Debug/, Release/, etc. Force everything into build/bin.
 foreach(_cfg IN ITEMS DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
 
     set(
@@ -109,7 +103,6 @@ set(ASSIMP_WARNINGS_AS_ERRORS OFF CACHE BOOL "" FORCE)
 set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE)
 
-# Only compile importers we actually want
 set(
     ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT
     OFF
@@ -147,8 +140,6 @@ FetchContent_MakeAvailable(
     assimp
 )
 
-
-# Disable Assimp warnings
 if(MSVC)
 
     target_compile_options(
@@ -232,9 +223,26 @@ target_include_directories(
 )
 
 
-# ---------------------------------------------------------
-# STB MSVC SETTINGS
-# ---------------------------------------------------------
+# =========================================================
+# MINIAUDIO
+# =========================================================
+
+add_library(
+    miniaudio
+    STATIC
+    external/miniaudio/miniaudio_impl.cpp
+)
+
+target_include_directories(
+    miniaudio
+    PUBLIC
+    "${CMAKE_CURRENT_SOURCE_DIR}/external/miniaudio"
+)
+
+
+# =========================================================
+# MSVC SETTINGS FOR THIRD-PARTY LIBS
+# =========================================================
 
 if(MSVC)
 
@@ -250,6 +258,12 @@ if(MSVC)
         _CRT_SECURE_NO_WARNINGS
     )
 
+    target_compile_definitions(
+        miniaudio
+        PRIVATE
+        _CRT_SECURE_NO_WARNINGS
+    )
+
     target_compile_options(
         stb_image
         PRIVATE
@@ -258,6 +272,12 @@ if(MSVC)
 
     target_compile_options(
         stb_image_write
+        PRIVATE
+        /W0
+    )
+
+    target_compile_options(
+        miniaudio
         PRIVATE
         /W0
     )
@@ -296,23 +316,11 @@ endif()
 # ASSETS
 # =========================================================
 
-# IMPORTANT:
-#
-# This is the ONE AND ONLY source-of-truth for assets.
-#
-# Never manually edit:
-#
-#     build/bin/Assets
-#
-# That directory is automatically generated.
-
 set(
     ASSETS_SOURCE_DIR
     "${CMAKE_CURRENT_SOURCE_DIR}/Assets"
 )
 
-
-# Find assets so they can also appear inside Visual Studio.
 file(
     GLOB_RECURSE ASSET_FILES
     CONFIGURE_DEPENDS
@@ -348,15 +356,12 @@ target_include_directories(
 # VISUAL STUDIO GROUPS
 # =========================================================
 
-# Display src/ nicely inside Visual Studio
 source_group(
     TREE "${CMAKE_CURRENT_SOURCE_DIR}/src"
     PREFIX "src"
     FILES ${SRC_FILES}
 )
 
-
-# Display Assets/ nicely inside Visual Studio
 if(ASSET_FILES)
 
     source_group(
@@ -365,8 +370,6 @@ if(ASSET_FILES)
         FILES ${ASSET_FILES}
     )
 
-    # Assets are displayed in Visual Studio,
-    # but obviously aren't compiled as C/C++ files.
     set_source_files_properties(
         ${ASSET_FILES}
         PROPERTIES
@@ -391,6 +394,8 @@ target_link_libraries(
     stb_image
     stb_image_write
 
+    miniaudio
+
     assimp::assimp
     OpenGL::GL
 )
@@ -408,25 +413,12 @@ if(MSVC)
         _CRT_SECURE_NO_WARNINGS
     )
 
-
-    # graphicsbox becomes the startup project
     set_property(
         DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         PROPERTY
         VS_STARTUP_PROJECT ${PROJECT_NAME}
     )
 
-
-    # When running from Visual Studio:
-    #
-    # Working directory =
-    # build/bin
-    #
-    # Therefore:
-    #
-    # Assets/textures/foo.png
-    #
-    # resolves correctly.
     set_target_properties(
         ${PROJECT_NAME}
         PROPERTIES
@@ -448,16 +440,11 @@ if(EXISTS "${ASSETS_SOURCE_DIR}")
         TARGET ${PROJECT_NAME}
         POST_BUILD
 
-        # Remove old runtime Assets directory.
-        #
-        # This prevents deleted assets from remaining
-        # inside build/bin/Assets.
         COMMAND
             ${CMAKE_COMMAND}
             -E rm -rf
             "$<TARGET_FILE_DIR:${PROJECT_NAME}>/Assets"
 
-        # Copy the clean Assets directory.
         COMMAND
             ${CMAKE_COMMAND}
             -E copy_directory

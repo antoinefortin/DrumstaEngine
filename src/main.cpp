@@ -18,15 +18,24 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
-// AFTER
+// Graphcis
 #include "Importer/AssetImporter.h"
 #include "Datas/DatasType.h"
 #include "Engine/Gameplay/Input/KeyboardInput.h"
 #include "Engine/Rendering/OpenGL/Texture.h"
 #include "Engine/Rendering/OpenGL/Shader.h"
+#include <miniaudio.h>
+
+
+//Audio
+
+#include "Engine/Audio/Audio.h"
+
 
 #include <stb_image.h>
 #include <stb_image_write.h>
+
+
 
 typedef GLuint gint;
 GLFWwindow* window{ nullptr };
@@ -174,8 +183,10 @@ Mesh generateCube(float size = 1.0f)
 
     return mesh;
 }
+
 Mesh generateIcosphere(float radius = 1.0f, int subdivisions = 1)
 {
+    // Al;gos stolen from Belnder src code
     Mesh mesh;
     const float t = (1.0f + std::sqrt(5.0f)) * 0.5f; 
     std::vector<Vertex> baseVerts = {
@@ -470,7 +481,8 @@ void HandleCameraMovement(
 int main()
 {
 
-
+    Audio music("Assets/Audio/drumsta.mp3");
+    music.Play();
 
    /*
 
@@ -510,7 +522,7 @@ int main()
 
 
 
-    if (!initOpenGL(windowWidth, windowHeight, "OpenGL Sandbox"))
+    if (!initOpenGL(windowWidth, windowHeight, "Drumsta LOVE"))
         return -1;
 
 
