@@ -6,11 +6,11 @@
 
 ## **  TODO**
 
-As of tonight 28 august 2026
+As of tonight 27 september 2026
 
- 1.  Test passing importer consutrctor the globals for vertex, indices and ssbos
- 2. Check for hot shader reloading as it is shit at the moment. 
- 3. Make the glb loaded part of the project 
+ 1.  Include bettrer demo files
+ 2.  Migrate ssbo to their own class
+ 3.  Used the Texture GPu to apply on terxture 
 
 ## **Backstory**
 
