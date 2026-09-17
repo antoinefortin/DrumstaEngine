@@ -10,7 +10,7 @@ As of tonight 27 september 2026
 
  1.  Include bettrer demo files
  2.  Migrate ssbo to their own class
- 3.  Used the Texture GPu to apply on terxture 
+ 3.  Used the uploaded texture and shader wrapper to use themiun frasg shader
 
 ## **Backstory**
 
