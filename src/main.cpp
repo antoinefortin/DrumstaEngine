@@ -339,7 +339,7 @@ void LoadAsset()
 {
     std::cout << "Load Asset" << std::endl;
     AssetImporter importer;
-    importer.LoadAsset("C:/dev/assets/Untitled.glb", meshes, transforms, drawColor);
+    importer.LoadAsset("Assets/Models/hello.glb", meshes, transforms, drawColor);
 
     std::cout << "Showing temporary buffer" << std::endl;
     for (int i{}; i < meshes.size(); i++)
