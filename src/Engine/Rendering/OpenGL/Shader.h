@@ -22,11 +22,10 @@ public:
     );
     ~Shader();
 
-    GLuint createShaderProgram();
-    GLuint compileShaderStage(
-        const std::string& source,
-        GLenum shaderType
-    );
+    void createShaderProgram();
+
+    GLuint getGPUID();
+    
     //void changeVertexSource(const std::string in);
     //void changeFragmentSource(const std::string in);
 
@@ -37,4 +36,10 @@ private:
     GLuint fragID;
 
     GLuint shaderID;
+    GLuint compileShaderStage(
+        const std::string& source,
+        GLenum shaderType
+    );
+
 };
+

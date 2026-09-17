@@ -24,12 +24,11 @@ Shader::~Shader()
 
 
 
-GLuint Shader::createShaderProgram()
+void Shader::createShaderProgram()
 {
     if (vertexSourceCode.empty() || fragmentSourceCode.empty())
     {
         std::cerr << "Failed to load shader, kille.\n";
-        return 0;
     }
 
 
@@ -40,7 +39,6 @@ GLuint Shader::createShaderProgram()
     {
         if (vertexShader) glDeleteShader(vertexShader);
         if (fragmentShader) glDeleteShader(fragmentShader);
-        return 0;
     }
 
     GLuint program = glCreateProgram();
@@ -87,4 +85,10 @@ GLuint Shader::compileShaderStage(
         return 0;
     }
     return shader;
+}
+
+
+GLuint Shader::getGPUID()
+{
+    return shaderID;
 }

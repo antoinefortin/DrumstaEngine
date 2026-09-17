@@ -23,6 +23,7 @@
 #include "Datas/DatasType.h"
 #include "Engine/Gameplay/Input/KeyboardInput.h"
 #include "Engine/Rendering/OpenGL/Texture.h"
+#include "Engine/Rendering/OpenGL/Shader.h"
 
 #include <stb_image.h>
 #include <stb_image_write.h>
@@ -446,9 +447,14 @@ void initScene()
 
     LoadAsset();
 
-    loadAndCreateShader();
+
+    // Shader Test
+    Shader shader(vertexShaders[0], fragmentShaders[0]);
+    shader.createShaderProgram();
+    GLuint gpuShaderDI = shader.getGPUID();
 
 
+    return;
  //   createMeshData();
 
     uint32_t runningVertexOffset{ 0 };
@@ -615,7 +621,7 @@ int main()
         std::cout << "       GPUHandleID  -> " << (int)textureTest.getGPUHandle() << std::endl;
     }
 
-
+    std::cout << "breakpoiint";
         
     initScene();
     glm::vec3 cameraPos = glm::vec3(0.0f, 2.0f, 18.0f);
