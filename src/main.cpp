@@ -132,9 +132,6 @@ std::vector<DrawColor> drawColor;
 std::vector<glm::mat4x4> transforms;
 std::vector<Texture> textures;
 
-// KEYBOARD
-
-//
 
 std::string readFileToString(const std::string& path)
 {
@@ -609,12 +606,15 @@ int main()
 
 
     Texture textureTest{ "Assets/Textures/debug.png" };
+    textures.push_back(textureTest);
+
     textureTest.UploadToGpu();
     if (textureTest.existOnGpu())
     {
         std::cout << "Texture data existe on GPU Vram :" << std::endl;
         std::cout << "       GPUHandleID  -> " << (int)textureTest.getGPUHandle() << std::endl;
     }
+
 
         
     initScene();
