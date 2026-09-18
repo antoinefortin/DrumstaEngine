@@ -106,8 +106,16 @@ void AssetImporter::processMesh(
             v.ny = mesh->mNormals[i].y;
             v.nz = mesh->mNormals[i].z;
         }
+  
 
+        // UV
+        if (mesh->HasTextureCoords(0))
+        {
+            v.u = mesh->mTextureCoords[0][i].x;
+            v.v = mesh->mTextureCoords[0][i].y;
 
+        }
+        // push back apres claice
         outMesh.verts.push_back(v);
     }
 

@@ -3,6 +3,7 @@
 struct Vertex {
     float x, y, z;
     float nx, ny, nz;
+    float u, v;
 };
 
 struct DrawMetadata {
@@ -29,6 +30,7 @@ flat out uint fragMaterialIndex;
 out vec3 fragNormal;
 out vec3 fragWorldPos;
 out vec3 fragMeshCol;
+out vec2 fragUV;
 
 void main()
 {
@@ -44,7 +46,7 @@ void main()
     Vertex v = vertices[absoluteIndex];
     vec3 position = vec3(v.x, v.y, v.z);
     vec3 normal   = vec3(v.nx, v.ny, v.nz);
-
+    fragUV = vec2(v.u, v.v);
     mat4 model = transforms[gl_BaseInstance + gl_InstanceID];
     mat3 normalMatrix = mat3(transpose(inverse(model)));
 
