@@ -145,13 +145,13 @@ std::vector<Texture> textures;
 
 
 std::vector<std::string> vertexShaders{
-    "Shaders/vertex.shader",
-    "Shaders/newvertex.shader"
+    "Assets/Shaders/vertex.shader",
+    "Assets/Shaders/newvertex.shader"
 };
 
 std::vector<std::string> fragmentShaders{
-    "Shaders/frag.shader",
-    "Shaders/newfrag.shader"
+    "Assets/Shaders/frag.shader",
+    "Assets/Shaders/newfrag.shader"
 };
 
 
@@ -404,11 +404,22 @@ void initScene()
 
     uploadSSBOToGpu();
 }
-void render(const glm::mat4& viewProj)
+void render(
+    const glm::mat4& viewProj,
+    Texture& texture
+)
 {
 
     std::cout << 1;
     glUseProgram(shaderPrograms[0]); 
+
+
+    // Set active texture
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture.getGPUHandle());
+    GLint locTexture = glGetUniformLocation(shaderPrograms[0], "uTexture");
+    glUniform1i(locTexture, 0); 
+
 
     GLint locViewProj = glGetUniformLocation(shaderPrograms[0], "viewProj");
     glUniformMatrix4fv(locViewProj, 1, GL_FALSE, glm::value_ptr(viewProj));
@@ -527,16 +538,11 @@ int main()
 
 
     Texture textureTest{ "Assets/Textures/debug.png" };
-    textures.push_back(textureTest);
+    //textures.push_back(textureTest);
 
     textureTest.UploadToGpu();
-    if (textureTest.existOnGpu())
-    {
-        std::cout << "Texture data existe on GPU Vram :" << std::endl;
-        std::cout << "       GPUHandleID  -> " << (int)textureTest.getGPUHandle() << std::endl;
-    }
 
-    std::cout << "breakpoiint";
+
         
     initScene();
     glm::vec3 cameraPos = glm::vec3(0.0f, 2.0f, 18.0f);
@@ -563,7 +569,8 @@ int main()
             0.1f, 100.0f);
         glm::mat4 viewProj = proj * view;
 
-        render(viewProj);
+        
+        render(viewProj, textureTest);
 
         glfwSwapBuffers(window);
     }
