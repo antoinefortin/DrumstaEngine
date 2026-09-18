@@ -537,7 +537,7 @@ int main()
         return -1;
 
 
-    Texture textureTest{ "Assets/Textures/debug.png" };
+    Texture textureTest{ "Assets/Textures/palette.png" };
     //textures.push_back(textureTest);
 
     textureTest.UploadToGpu();
