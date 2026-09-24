@@ -1,4 +1,11 @@
 #pragma once
+#include <vector>
+
+#include "../../Datas/DatasType.h"
+
+#include "RenderingData.h"
+
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -22,6 +29,16 @@ public:
     void Bind() const;
     void Draw() const;
 
+    void Upload(
+        const std::vector<Vertex>& vertices,
+        const std::vector<uint32_t>& indices,
+        const std::vector<glm::mat4>& transforms,
+        const std::vector<DrawMetadata>& metadata,
+        const std::vector<DrawColor>& colors,
+        const std::vector<DrawArraysIndirectCommand>& commands
+    );
+
+
 private:
     GLuint ssboVertex = 0;
     GLuint ssboIndex = 0;
@@ -33,6 +50,7 @@ private:
     GLuint vao = 0;
 
     GLsizei drawCount = 0;
+
 };
 
 
