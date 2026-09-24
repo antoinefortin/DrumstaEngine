@@ -25,7 +25,7 @@
 #include "Engine/Rendering/OpenGL/Texture.h"
 #include "Engine/Rendering/OpenGL/Shader.h"
 #include <miniaudio.h>
-
+#include "Engine/Rendering/GPUScene.h"
 
 //Audio
 
@@ -113,22 +113,6 @@ gint ssboVertex, ssboIndex, ssboTransform, ssboMetadata, indirectBuffer, vao, ss
 
 
 
-
-struct DrawArraysIndirectCommand
-{
-    uint32_t count;
-    uint32_t instanceCount;
-    uint32_t first;
-    uint32_t baseInstance;
-};
-
-struct DrawMetadata
-{
-    uint32_t baseVertex;
-    uint32_t materialIndex;
-    uint32_t padding0;
-    uint32_t padding1;
-};
 
 
 
