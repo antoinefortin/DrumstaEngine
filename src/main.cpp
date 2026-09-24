@@ -266,59 +266,6 @@ void createMeshData()
   // meshes.push_back(generateIcosphere(1.0f, 2));
 }
 
-void uploadSSBOToGpu()
-{
-    glGenVertexArrays(1, &vao);
-    // Vertex SBO
-    glGenBuffers(1, &ssboVertex);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssboVertex);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, allVertices.size() * sizeof(Vertex), allVertices.data(), GL_STATIC_DRAW);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssboVertex);
-
-    glGenBuffers(1, &ssboIndex);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssboIndex);
-    glBufferData(GL_SHADER_STORAGE_BUFFER,
-        allIndices.size() * sizeof(uint32_t),
-        allIndices.data(),
-        GL_STATIC_DRAW);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ssboIndex);
-
-    glGenBuffers(1, &ssboTransform);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssboTransform);
-    glBufferData(GL_SHADER_STORAGE_BUFFER,
-        transforms.size() * sizeof(glm::mat4), // ou ton type de matrice
-        transforms.data(),
-        GL_DYNAMIC_DRAW);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ssboTransform);
-
-
-    glGenBuffers(1, &ssboMetadata);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssboMetadata);
-    glBufferData(GL_SHADER_STORAGE_BUFFER,
-        drawMetadata.size() * sizeof(DrawMetadata),
-        drawMetadata.data(),
-        GL_DYNAMIC_DRAW);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssboMetadata);
-    
-    glGenBuffers(1, &ssboColor);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssboColor);
-    glBufferData(GL_SHADER_STORAGE_BUFFER,
-        drawColor.size() * sizeof(DrawColor),
-        drawColor.data(),
-        GL_DYNAMIC_DRAW);
-
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, ssboColor);
-
-    // GPU draw command
-    glGenBuffers(1, &indirectBuffer);
-    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer);
-    glBufferData(GL_DRAW_INDIRECT_BUFFER,
-        drawCommands.size() * sizeof(DrawArraysIndirectCommand),
-        drawCommands.data(),
-        GL_DYNAMIC_DRAW);
-
-}
-
 void LoadAsset()
 {
     std::cout << "Load Asset" << std::endl;
