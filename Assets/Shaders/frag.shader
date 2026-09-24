@@ -7,5 +7,5 @@ out vec4 outColor;
 
 void main()
 {
-    outColor = texture(uTexture, fragUV);
+    outColor = texture(uTexture, fragUV * vec2(12.0f));
 }
