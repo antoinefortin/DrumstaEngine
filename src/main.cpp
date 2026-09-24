@@ -335,7 +335,7 @@ void LoadAsset()
 }
 
 
-void initScene()
+void initScene(GPUScene& gpuScene)
 {
 
     LoadAsset();
@@ -386,11 +386,22 @@ void initScene()
 
     }
 
-    uploadSSBOToGpu();
+//    uploadSSBOToGpu();
+
+    gpuScene.Upload(
+        allVertices,
+        allIndices,
+        transforms,
+        drawMetadata,
+        drawColor,
+        drawCommands
+    );
+
 }
 void render(
     const glm::mat4& viewProj,
-    Texture& texture
+    Texture& texture,
+    const GPUScene& gpuScene
 )
 {
 
@@ -419,13 +430,22 @@ void render(
 
     glBindVertexArray(vao);
 
-    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer);
-    glMultiDrawArraysIndirect(
-        GL_TRIANGLES,
-        (void*)0,
-        (GLsizei)drawCommands.size(),
-        0
-    );
+
+
+
+    // Old shit 
+    if (0)
+    {
+        glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer);
+        glMultiDrawArraysIndirect(
+            GL_TRIANGLES,
+            (void*)0,
+            (GLsizei)drawCommands.size(),
+            0
+        );
+    }
+    gpuScene.Bind();
+    gpuScene.Draw();
 }
 
 
@@ -526,9 +546,9 @@ int main()
 
     textureTest.UploadToGpu();
 
-
+    GPUScene gpuScene;
+    initScene(gpuScene);
         
-    initScene();
     glm::vec3 cameraPos = glm::vec3(0.0f, 2.0f, 18.0f);
     KeyboardInput input(window); // 
 
@@ -554,7 +574,8 @@ int main()
         glm::mat4 viewProj = proj * view;
 
         
-        render(viewProj, textureTest);
+     //   render(viewProj, textureTest);
+        render(viewProj, textureTest, gpuScene);
 
         glfwSwapBuffers(window);
     }

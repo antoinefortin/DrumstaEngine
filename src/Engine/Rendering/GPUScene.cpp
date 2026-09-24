@@ -1,12 +1,36 @@
 #include "GPUScene.h"
 
-void GPUScene::Bind() const
+
+
+GPUScene::~GPUScene()
 {
+
 }
 
+// bind ssbo
+void GPUScene::Bind() const
+{
 
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssboVertex);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ssboIndex);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ssboTransform);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssboMetadata);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, ssboColor);
+
+    glBindVertexArray(vao);
+    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer);
+}
+
+// drae scene from upolaoded gpu datas 
 void GPUScene::Draw() const
 {
+
+    glMultiDrawArraysIndirect(
+        GL_TRIANGLES,
+        nullptr,
+        drawCount,
+        0
+    );
 }
 
 
