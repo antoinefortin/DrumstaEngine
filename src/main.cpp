@@ -27,6 +27,8 @@
 #include <miniaudio.h>
 #include "Engine/Rendering/GPUScene.h"
 #include "Engine/Rendering/RenderingManager.h"
+#include "Engine/Geometries/MeshGenerator.h"
+
 //Audio
 
 #include "Engine/Audio/Audio.h"
