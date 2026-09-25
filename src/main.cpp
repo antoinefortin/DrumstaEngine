@@ -26,7 +26,7 @@
 #include "Engine/Rendering/OpenGL/Shader.h"
 #include <miniaudio.h>
 #include "Engine/Rendering/GPUScene.h"
-
+#include "Engine/Rendering/RenderingManager.h"
 //Audio
 
 #include "Engine/Audio/Audio.h"
@@ -352,30 +352,6 @@ void render(
 )
 {
 
-    std::cout << 1;
-    glUseProgram(shaderPrograms[0]); 
-
-
-    // Set active texture
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture.getGPUHandle());
-    GLint locTexture = glGetUniformLocation(shaderPrograms[0], "uTexture");
-    glUniform1i(locTexture, 0); 
-
-
-    GLint locViewProj = glGetUniformLocation(shaderPrograms[0], "viewProj");
-    glUniformMatrix4fv(locViewProj, 1, GL_FALSE, glm::value_ptr(viewProj));
-
-    GLint locLightDir = glGetUniformLocation(shaderPrograms[0], "lightDir");
-    glUniform3f(locLightDir, 0.4f, 0.8f, 0.3f);
-
-    GLint locLightColor = glGetUniformLocation(shaderPrograms[0], "lightColor");
-    glUniform3f(locLightColor, 1.0f, 1.0f, 1.0f);
-
-    GLint locBaseColor = glGetUniformLocation(shaderPrograms[0], "baseColor");
-    glUniform3f(locBaseColor, 0.8f, 0.8f, 0.8f);
-
-    glBindVertexArray(vao);
 
 
 
@@ -391,8 +367,7 @@ void render(
             0
         );
     }
-    gpuScene.Bind();
-    gpuScene.Draw();
+
 }
 
 
@@ -495,7 +470,7 @@ int main()
 
     GPUScene gpuScene;
     initScene(gpuScene);
-        
+    RenderingManager renderer;
     glm::vec3 cameraPos = glm::vec3(0.0f, 2.0f, 18.0f);
     KeyboardInput input(window); // 
 
@@ -518,11 +493,19 @@ int main()
         glm::mat4 proj = glm::perspective(glm::radians(45.0f),
             (float)windowWidth / (float)windowHeight,
             0.1f, 100.0f);
+
         glm::mat4 viewProj = proj * view;
 
+
+        renderer.Render(
+            viewProj,
+            textureTest,
+            gpuScene,
+            shaderPrograms[0]
+        );
         
      //   render(viewProj, textureTest);
-        render(viewProj, textureTest, gpuScene);
+       // render(viewProj, textureTest, gpuScene);
 
         glfwSwapBuffers(window);
     }

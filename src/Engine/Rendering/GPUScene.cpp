@@ -2,9 +2,38 @@
 
 
 
+/*
+
+    const GLuint buffers[] = {
+        ssboVertex,
+        ssboIndex,
+        ssboTransform,
+        ssboMetadata,
+        ssboColor,
+        indirectBuffer
+    };
+
+    glDeleteBuffers(6, buffers);
+    glDeleteVertexArrays(1, &vao);
+*/
+
 GPUScene::~GPUScene()
 {
 
+
+    const GLuint buffersToDelete[] =
+    {
+        ssboVertex,
+        ssboIndex,
+        ssboTransform,
+        ssboMetadata,
+        ssboColor,
+        indirectBuffer
+    };
+
+
+    glDeleteBuffers(6, buffersToDelete);
+    glDeleteVertexArrays(1, &vao);
 }
 
 // bind ssbo

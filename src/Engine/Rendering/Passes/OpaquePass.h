@@ -1,20 +1,17 @@
 #pragma once
 
-#include "Passes/OpaquePass.h"
-
 #include <glad/glad.h>
 #include <glm/glm.hpp>
-
-
 
 
 class GPUScene;
 class Texture;
 
-class RenderingManager
+class OpaquePass
 {
 public:
-    void Render(
+    OpaquePass();
+    void Execute(
         const glm::mat4& viewProj,
         Texture& texture,
         const GPUScene& gpuScene,
@@ -22,6 +19,7 @@ public:
     );
 
 
+
 private:
-    OpaquePass opaquePass;
+
 };
