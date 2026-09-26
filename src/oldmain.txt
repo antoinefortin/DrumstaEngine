@@ -1,0 +1,147 @@
+
+int ___main()
+{
+
+    Audio music("Assets/Audio/drumsta.mp3");
+    music.Play();
+
+
+    GLuint handle = textureTest.getGPUHandle();
+    bool isUplaoded = textureTest.existOnGpu();
+    if (isUplaoded)
+    {
+        std::cout << "Isd on GPU : " << "GPU Texture ID: " << handle << std::endl;
+    }
+    else
+    {
+        std::cout << "Not uploaded" << std::endl;
+    }
+    // test
+    std::vector<CPU_Color> testSampling{};
+    testSampling.reserve(3);
+    testSampling.push_back(textureTest.GetPixelColor(1, 0)); // (255, 0 , 0 )
+    testSampling.push_back(textureTest.GetPixelColor(45, 0));// (0, 255 , 0 )
+    testSampling.push_back(textureTest.GetPixelColor(1, 35));// (0, 0, 255)
+
+    for (int i{}; i < testSampling.size(); i++)
+    {
+        CPU_Color curr = testSampling[i];
+        std::cout << "R: " << curr.r << " G: " << curr.g << "B: " << curr.b << std::endl;
+    }
+
+    textureTest.SaveToFile("Assets/Textures/poney.png");
+
+    //textureTest.UploadToGpu();
+
+
+    // test texture upl;oad to GPU
+    // 
+//    std::cout << textureTest.GetPixelColor(0, 0).r << ;
+    //return 0;
+
+
+    if (0)
+    {
+        if (!initOpenGL(windowWidth, windowHeight, "Drumsta LOVE"))
+            return -1;
+
+
+        Texture textureTest{ "Assets/Textures/palette.png" };
+        //textures.push_back(textureTest);
+
+        textureTest.UploadToGpu();
+
+        GPUScene gpuScene;
+        initScene(gpuScene);
+        RenderingManager renderer;
+        glm::vec3 cameraPos = glm::vec3(0.0f, 2.0f, 18.0f);
+        KeyboardInput input(window); // 
+
+
+        glEnable(GL_DEPTH_TEST);
+
+
+        while (!glfwWindowShouldClose(window))
+        {
+            glfwPollEvents();
+            glClearColor(0.1f, 0.1f, 0.12f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            HandleCameraMovement(input, cameraPos, 0.25f);
+
+            glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+            glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+            glm::mat4 view = glm::lookAt(cameraPos, cameraFront, cameraUp);
+            glm::mat4 proj = glm::perspective(glm::radians(45.0f),
+                (float)windowWidth / (float)windowHeight,
+                0.1f, 100.0f);
+
+            glm::mat4 viewProj = proj * view;
+
+
+            renderer.Render(
+                viewProj,
+                textureTest,
+                gpuScene,
+                shaderPrograms[0]
+            );
+
+            //   render(viewProj, textureTest);
+              // render(viewProj, textureTest, gpuScene);
+
+            glfwSwapBuffers(window);
+        }
+        glfwTerminate();    if (!initOpenGL(windowWidth, windowHeight, "Drumsta LOVE"))
+            return -1;
+
+
+        Texture textureTest{ "Assets/Textures/palette.png" };
+        //textures.push_back(textureTest);
+
+        textureTest.UploadToGpu();
+
+        GPUScene gpuScene;
+        initScene(gpuScene);
+        RenderingManager renderer;
+        glm::vec3 cameraPos = glm::vec3(0.0f, 2.0f, 18.0f);
+        KeyboardInput input(window); // 
+
+
+        glEnable(GL_DEPTH_TEST);
+
+
+        while (!glfwWindowShouldClose(window))
+        {
+            glfwPollEvents();
+            glClearColor(0.1f, 0.1f, 0.12f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            HandleCameraMovement(input, cameraPos, 0.25f);
+
+            glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+            glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+            glm::mat4 view = glm::lookAt(cameraPos, cameraFront, cameraUp);
+            glm::mat4 proj = glm::perspective(glm::radians(45.0f),
+                (float)windowWidth / (float)windowHeight,
+                0.1f, 100.0f);
+
+            glm::mat4 viewProj = proj * view;
+
+
+            renderer.Render(
+                viewProj,
+                textureTest,
+                gpuScene,
+                shaderPrograms[0]
+            );
+
+            glfwSwapBuffers(window);
+        }
+        glfwTerminate();
+
+    }
+
+    return 0;
+}
