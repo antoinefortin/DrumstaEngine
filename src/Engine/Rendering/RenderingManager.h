@@ -14,6 +14,7 @@ class Texture;
 class RenderingManager
 {
 public:
+    RenderingManager();
     void Render(
         const glm::mat4& viewProj,
         Texture& texture,

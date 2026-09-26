@@ -4,6 +4,11 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
+
+RenderingManager::RenderingManager()
+{
+
+}
 void RenderingManager::Render(
     const glm::mat4& viewProj,
     Texture& texture,

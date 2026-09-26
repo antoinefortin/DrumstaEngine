@@ -157,7 +157,44 @@ bool Texture::existOnGpu()
 }
 
 
+Texture::Texture(Texture&& other) noexcept
+    : textureData(other.textureData),
+    width(other.width),
+    height(other.height),
+    channels(other.channels),
+    gpuTextureID(other.gpuTextureID),
+    TexturePath(std::move(other.TexturePath)),
+    textureFormat(other.textureFormat)
+{
+    other.textureData = nullptr;
+    other.gpuTextureID = 0;
+}
+
+Texture& Texture::operator=(Texture&& other) noexcept
+{
+    if (this != &other)
+    {
+        release();
+        textureData = other.textureData;
+        width = other.width;
+        height = other.height;
+        channels = other.channels;
+        gpuTextureID = other.gpuTextureID;
+        TexturePath = std::move(other.TexturePath);
+        textureFormat = other.textureFormat;
+
+        other.textureData = nullptr;
+        other.gpuTextureID = 0;
+    }
+    return *this;
+}
+
 Texture::~Texture()
+{
+    release();
+}
+
+void Texture::release()
 {
     if (textureData)
     {

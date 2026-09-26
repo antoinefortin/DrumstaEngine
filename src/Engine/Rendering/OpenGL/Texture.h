@@ -19,6 +19,12 @@ public:
     Texture(const std::string& path);
     ~Texture();
 
+    // Owns a GL texture + stb pixels: no copies, moves only.
+    Texture(const Texture&) = delete;
+    Texture& operator=(const Texture&) = delete;
+    Texture(Texture&& other) noexcept;
+    Texture& operator=(Texture&& other) noexcept;
+
     CPU_Color GetPixelColor(const int& x,const int& y);
     void ShowTextureInfos();
     bool SaveToFile(const std::string& path) const;
@@ -26,11 +32,12 @@ public:
     void UploadToGpu();
     bool existOnGpu();
 private:
-    unsigned char* textureData;
-    int width, height, channels;
-    GLuint gpuTextureID;
+    unsigned char* textureData{ nullptr };
+    int width{ 0 }, height{ 0 }, channels{ 0 };
+    GLuint gpuTextureID{ 0 };
     std::string TexturePath;
-    GLenum textureFormat;
+    GLenum textureFormat{ GL_RGB };
+    void release();
     void setTextureFormat();
     void setTextureAlligmentForRGB();
 };
