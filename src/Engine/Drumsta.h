@@ -65,8 +65,15 @@ private:
 	std::vector<DrawColor> drawColor;
 	std::vector<glm::mat4x4> transforms;
 	std::vector<Texture> textures;
-	std::unordered_map<std::string, GLuint> shadersPrograms;
+    std::vector<MaterialData> materialDatas;
+    std::vector<ImageData> imageDatas;
+
+    std::unordered_map<std::string, GLuint> shadersPrograms;
 	std::unordered_map<std::string, Texture> m_Textures;
-	GPUScene m_gpuScene = GPUScene{};
+
+
+    GPUScene m_gpuScene = GPUScene{};
+
+
 
 };

@@ -8,8 +8,6 @@ AssetImporter::AssetImporter()
 {
 }
 
-// Assimp est row-major, GLM est column-major -> transposition via l'ordre des composantes.
-// static : détail d'implémentation, pas besoin d'exister dans le header.
 static glm::mat4 AiMatrixToGlm(const aiMatrix4x4& m)
 {
     return glm::mat4(
@@ -24,8 +22,9 @@ void AssetImporter::LoadAsset(
     const std::string& path,
     std::vector<Mesh>& _tmp,
     std::vector<glm::mat4x4>& transforms,
-    std::vector<DrawColor>& drawColor
-    
+    std::vector<DrawColor>& drawColor,
+    std::vector<MaterialData>& materials,
+    std::vector<ImageData>& images
 )
 {
     Assimp::Importer importer;
@@ -48,7 +47,21 @@ void AssetImporter::LoadAsset(
     std::cout << "root      : " << scene->mRootNode->mName.C_Str()
         << " (" << scene->mRootNode->mNumChildren << " child nodes)\n";
 
-    processNode(scene->mRootNode, scene, glm::mat4(1.0f), _tmp, transforms, drawColor);
+
+    processMaterials(scene, path, materials, images);
+
+    processNode(
+        scene->mRootNode,
+        scene,
+        glm::mat4(1.0f),
+        _tmp,
+        transforms,
+        drawColor
+    );
+
+//    processNode(scene->mRootNode, scene, glm::mat4(1.0f), _tmp, transforms, drawColor);
+
+
 }
 
 bool AssetImporter::loadSceneInMemory(const std::string& path)
@@ -151,4 +164,14 @@ void AssetImporter::processMesh(
     drawColor.push_back(meshcolor);
     transforms.push_back(worldXf);
     _tmp.push_back(std::move(outMesh));
+}
+
+void AssetImporter::processMaterials(
+    const aiScene* scene,
+    const std::string& assetPath,
+    std::vector<MaterialData>& materials,
+    std::vector<ImageData>& images
+)
+{
+    std::cout << "Procerssing material";
 }

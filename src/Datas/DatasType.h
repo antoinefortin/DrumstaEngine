@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-
+#include <glm/glm.hpp>
 ///  INPUT 
 enum KeyboardMode
 {
@@ -46,4 +46,17 @@ struct DrawColor
 
 };
 
+struct ImageData
+{
+    int width = 0;
+    int height = 0;
+
+    std::vector<unsigned char> rgba;
+};
+
+struct MaterialData
+{
+    glm::vec4 baseColorFactor{ 1.0f };
+    int32_t baseColorTextureIndex = -1;
+};
 /// Rendering

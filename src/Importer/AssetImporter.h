@@ -18,7 +18,9 @@ public:
         const std::string& path,
         std::vector<Mesh>& _tmp,
         std::vector<glm::mat4x4>& transforms,
-        std::vector<DrawColor>& drawColor
+        std::vector<DrawColor>& drawColor,
+        std::vector<MaterialData>& materials,
+        std::vector<ImageData>& images
     );
     bool loadSceneInMemory(const std::string& path);
 
@@ -39,6 +41,12 @@ public:
         std::vector<glm::mat4x4>& transforms,
         std::vector<DrawColor>& drawColor
     );
-};
 
-// AiMatrixToGlm supprimée d'ici — elle vit uniquement dans le .cpp
+    void processMaterials(
+        const aiScene* scene,
+        const std::string& assetPath,
+        std::vector<MaterialData>& materials,
+        std::vector<ImageData>& images
+    );
+
+};

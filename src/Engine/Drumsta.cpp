@@ -29,8 +29,6 @@ void Drumsta::loadTexture(
     const std::string& name,
     const std::string& path)
 {
-    // Construct in place: copying a Texture would let the temporary's
-    // destructor delete the GL texture the map still points to.
     auto [it, inserted] = m_Textures.try_emplace(name, path);
     it->second.UploadToGpu();
 }
@@ -74,7 +72,8 @@ void Drumsta::Run()
 void Drumsta::ImportAsset(const std::string& filePathGLB)
 {
 	std::cout << "[ImportAsset] Loading " << filePathGLB << std::endl;
-	m_importer.LoadAsset(filePathGLB, meshes, transforms, drawColor);
+	m_importer.LoadAsset(filePathGLB, meshes, transforms, drawColor, materialDatas, imageDatas);
+    
     
 }
 
