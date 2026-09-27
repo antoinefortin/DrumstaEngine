@@ -3,7 +3,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-
+#include "stb_image.h"
 AssetImporter::AssetImporter()
 {
 }
@@ -165,7 +165,6 @@ void AssetImporter::processMesh(
     transforms.push_back(worldXf);
     _tmp.push_back(std::move(outMesh));
 }
-
 void AssetImporter::processMaterials(
     const aiScene* scene,
     const std::string& assetPath,
@@ -173,5 +172,52 @@ void AssetImporter::processMaterials(
     std::vector<ImageData>& images
 )
 {
-    std::cout << "Procerssing material";
+    std::cout << "Processing materials" << std::endl;
+    std::cout << "Material count: " << scene->mNumMaterials << "\n";
+
+    for (unsigned int i = 0; i < scene->mNumMaterials; ++i)
+    {
+        aiMaterial* material = scene->mMaterials[i];
+        MaterialData currentMat;
+        currentMat.name = material->GetName().C_Str();
+        aiColor4D albedo(1.0f, 1.0f, 1.0f, 1.0f);
+        if (material->Get(AI_MATKEY_BASE_COLOR, albedo) != AI_SUCCESS)
+            material->Get(AI_MATKEY_COLOR_DIFFUSE, albedo);
+        currentMat.baseColorFactor = glm::vec4(albedo.r, albedo.g, albedo.b, albedo.a);
+
+        // Texture
+        aiString texturePath;
+        if (material->GetTexture(aiTextureType_BASE_COLOR, 0, &texturePath) == AI_SUCCESS ||
+            material->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath) == AI_SUCCESS)
+        {
+            const aiTexture* embedded = scene->GetEmbeddedTexture(texturePath.C_Str());
+
+            if (embedded && embedded->mHeight == 0)
+            {
+                int width = 0, height = 0, channels = 0;
+                unsigned char* data = stbi_load_from_memory(
+                    reinterpret_cast<const unsigned char*>(embedded->pcData),
+                    static_cast<int>(embedded->mWidth),
+                    &width, &height, &channels, 4);
+
+                if (data)
+                {
+                    ImageData image;
+                    image.width = width;
+                    image.height = height;
+                    image.rgba.assign(data, data + width * height * 4);
+                    stbi_image_free(data);
+
+                    currentMat.baseColorTextureIndex = static_cast<int32_t>(images.size());
+                    images.push_back(std::move(image));
+                }
+                else
+                {
+                    std::cerr << "Failed to decode texture " << texturePath.C_Str() << std::endl;
+                }
+            }
+        }
+
+        materials.push_back(currentMat);
+    }
 }

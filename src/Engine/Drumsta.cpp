@@ -74,14 +74,72 @@ void Drumsta::ImportAsset(const std::string& filePathGLB)
 	std::cout << "[ImportAsset] Loading " << filePathGLB << std::endl;
 	m_importer.LoadAsset(filePathGLB, meshes, transforms, drawColor, materialDatas, imageDatas);
     
-    
+
+
 }
 
 
 
 void Drumsta::InitScene()
 {
-    
+
+    for (size_t i{}; i < materialDatas.size(); i++)
+    {
+        std::cout << materialDatas[i].name << std::endl;
+        std::cout << "RGB Diffuse -> " << materialDatas[i].baseColorFactor.r << ", "
+            << materialDatas[i].baseColorFactor.g << ", "
+            << materialDatas[i].baseColorFactor.b << std::endl;
+    }
+
+    for (size_t i{}; i < imageDatas.size(); i++)
+    {
+        std::cout << "Texture[" << i << "]  WIDTH : " << imageDatas[i].width
+            << "  HEIGHT : " << imageDatas[i].height << std::endl;
+    }
+
+    if (!GLAD_GL_ARB_bindless_texture)
+    {
+        std::cerr << "Update yourt GPU damn god !" << std::endl;
+        return;
+    }
+
+    m_glTextures.resize(imageDatas.size());
+    m_textureHandles.resize(imageDatas.size());
+
+
+    for (size_t i{}; i < imageDatas.size(); i++)
+    {
+        const ImageData& img = imageDatas[i];
+
+        GLuint tex;
+        glCreateTextures(GL_TEXTURE_2D, 1, &tex);
+        glTextureStorage2D(tex, 1, GL_SRGB8_ALPHA8, img.width, img.height);
+        glTextureSubImage2D(tex, 0, 0, 0, img.width, img.height,
+            GL_RGBA, GL_UNSIGNED_BYTE, img.rgba.data());
+        glTextureParameteri(tex, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTextureParameteri(tex, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        GLuint64 handle = glGetTextureHandleARB(tex);
+        glMakeTextureHandleResidentARB(handle);
+
+        m_glTextures[i] = tex;
+        m_textureHandles[i] = handle;
+
+        std::cout << "Texture[" << i << "] -> GL ID " << tex
+            << "  Handle " << handle << std::endl;
+    }
+
+    glCreateBuffers(1, &m_textureHandleSSBO);
+    glNamedBufferStorage(m_textureHandleSSBO,
+        m_textureHandles.size() * sizeof(GLuint64), // taille en octets
+        m_textureHandles.data(),                    // les handles
+        0);
+
+    std::cout << "Texture handle SSBO -> GL ID " << m_textureHandleSSBO
+        << " (" << m_textureHandles.size() << " handles)" << std::endl;
+ //   m_textureHandles.resize(imageDatas.size());
+
+
     loadTexture("palette", "Assets/Textures/palette.png");
 	Shader shader(vertexShaders[0], fragmentShaders[0]);
 	shader.createShaderProgram();

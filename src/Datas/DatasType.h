@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 #include <glm/glm.hpp>
 ///  INPUT 
 enum KeyboardMode
@@ -56,7 +57,15 @@ struct ImageData
 
 struct MaterialData
 {
+    std::string name;
     glm::vec4 baseColorFactor{ 1.0f };
     int32_t baseColorTextureIndex = -1;
 };
+struct GPUMaterial
+{
+    glm::vec4 baseColorFactor;
+    int32_t   baseColorTextureIndex;
+    int32_t   _pad[3];
+};
+
 /// Rendering

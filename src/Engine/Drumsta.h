@@ -71,9 +71,11 @@ private:
     std::unordered_map<std::string, GLuint> shadersPrograms;
 	std::unordered_map<std::string, Texture> m_Textures;
 
+    std::vector<GLuint> m_glTextures; // Texutre handles
+    std::vector<GLuint64> m_textureHandles;
 
     GPUScene m_gpuScene = GPUScene{};
-
-
+    GLuint m_textureHandleSSBO = 0;
+    GLuint m_materialSSBO = 0;
 
 };

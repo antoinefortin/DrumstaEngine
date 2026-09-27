@@ -97,7 +97,7 @@ int main()
     void();
     Drumsta app{};
     app.Start();
-    app.ImportAsset("Assets/Models/hello.glb");
+    app.ImportAsset("Assets/Models/texture.glb");
     app.InitScene();
 
     app.Run();
