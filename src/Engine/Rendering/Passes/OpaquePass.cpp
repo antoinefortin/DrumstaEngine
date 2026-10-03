@@ -13,7 +13,7 @@ OpaquePass::OpaquePass()
 
 void OpaquePass::Execute(
     const glm::mat4& viewProj,
-    Texture& texture,
+    //Texture& texture,
     const GPUScene& gpuScene,
     GLuint shaderProgram
 
@@ -26,11 +26,14 @@ void OpaquePass::Execute(
 
     glUseProgram(shaderProgram);
 
+    /*
+    
+    
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture.getGPUHandle());
     GLint locTexture = glGetUniformLocation(shaderProgram, "uTexture");
     glUniform1i(locTexture, 0);
-
+    */
     GLint locViewProj = glGetUniformLocation(shaderProgram, "viewProj");
     glUniformMatrix4fv(locViewProj, 1, GL_FALSE, glm::value_ptr(viewProj));
 

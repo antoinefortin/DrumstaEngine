@@ -8,6 +8,7 @@
 #include "Rendering/RenderingManager.h"
 #include "Rendering/OpenGL/Texture.h"
 #include "Rendering/OpenGL/Shader.h"
+#include "Gameplay/Input/KeyboardInput.h"
 
 
 #include <glad/glad.h>
@@ -24,7 +25,7 @@ public:
 	Drumsta();
 	~Drumsta();
 	
-
+	KeyboardInput keyboardDevice{};
 	std::vector<std::string> vertexShaders{
 	"Assets/Shaders/vertex.shader",
 	"Assets/Shaders/newvertex.shader"
@@ -36,6 +37,10 @@ public:
 	};
 
 	void Start();
+
+
+
+
 	void Run();
 	
 	void ImportAsset(const std::string& filePathGLB);
@@ -53,7 +58,12 @@ private:
 	);
 	void InitOpenGL();
 
+
+	void initInputDevice();
+
+
 	void createSSBOData();
+	void processInput();
 
 
 	//std::vector<GLuint> shaderPrograms{};
@@ -77,5 +87,6 @@ private:
     GPUScene m_gpuScene = GPUScene{};
     GLuint m_textureHandleSSBO = 0;
     GLuint m_materialSSBO = 0;
+
 
 };

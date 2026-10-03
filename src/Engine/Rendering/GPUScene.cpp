@@ -1,6 +1,6 @@
 #include "GPUScene.h"
-
-
+#include <cmath>
+#include <algorithm>
 
 /*
 
@@ -70,8 +70,10 @@ void GPUScene::Upload(
     const std::vector<glm::mat4>& transforms,
     const std::vector<DrawMetadata>& metadata,
     const std::vector<DrawColor>& colors,
-    const std::vector<DrawArraysIndirectCommand>& commands
-)
+    const std::vector<DrawArraysIndirectCommand>& commands,
+    //const std::vector<GLuint64>& textureHandles
+    const std::vector<ImageData>& images
+    )
 {
     glGenVertexArrays(1, &vao);
     // Vertex SBO
@@ -124,6 +126,56 @@ void GPUScene::Upload(
         commands.data(),
         GL_DYNAMIC_DRAW);
 
+
     // draew count GPOU side 
     drawCount = static_cast<GLsizei>(commands.size());
+
+    // SSBO Texture
+    UploadTextures(images);
+
+}
+
+
+void GPUScene::UploadTextures(const std::vector<ImageData>& images)
+{
+    glTextures.resize(images.size());
+    textureHandles.resize(images.size());
+    
+    for (size_t i{}; i < images.size(); i++)
+    {
+        const ImageData& img = images[i];
+
+        GLsizei levels = 1 + (GLsizei)std::floor(std::log2((float)std::max(img.width, img.height)));
+
+        GLuint tex;
+        glCreateTextures(GL_TEXTURE_2D, 1, &tex);
+        glTextureStorage2D(tex, levels, GL_SRGB8_ALPHA8, img.width, img.height);
+        glTextureSubImage2D(tex, 0, 0, 0, img.width, img.height,
+            GL_RGBA, GL_UNSIGNED_BYTE, img.rgba.data());
+        glGenerateTextureMipmap(tex);
+
+        glTextureParameteri(tex, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTextureParameteri(tex, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTextureParameteri(tex, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTextureParameteri(tex, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+        GLuint64 handle = glGetTextureHandleARB(tex);
+        glMakeTextureHandleResidentARB(handle);
+
+        glTextures[i] = tex;
+        textureHandles[i] = handle;
+    }
+
+
+    std::vector<GLuint64> handles = textureHandles;
+    if (handles.empty())
+    {
+        handles.push_back(0);
+    }
+
+    glCreateBuffers(1, &ssboTextureHandles);
+    glNamedBufferStorage(ssboTextureHandles, handles.size() * sizeof(GLuint64),
+        handles.data(), 0);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, ssboTextureHandles);
+
 }

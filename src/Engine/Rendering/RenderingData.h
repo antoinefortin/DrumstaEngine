@@ -15,7 +15,7 @@ struct DrawMetadata
 {
     uint32_t baseVertex;
     uint32_t materialIndex;
-    uint32_t padding0;
+    uint32_t textureIndex;
     uint32_t padding1;
 };
 

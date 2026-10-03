@@ -13,7 +13,6 @@ public:
     OpaquePass();
     void Execute(
         const glm::mat4& viewProj,
-        Texture& texture,
         const GPUScene& gpuScene,
         GLuint shaderProgram
     );

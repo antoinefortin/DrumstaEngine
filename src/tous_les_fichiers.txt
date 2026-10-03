@@ -1,0 +1,2334 @@
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\dump.bat 
+======================================== 
+@echo off
+chcp 65001 >nul
+set "output=tous_les_fichiers.txt"
+
+:: Supprime le fichier de sortie s'il existe déjà pour éviter de doubler le contenu
+if exist "%output%" del "%output%"
+
+echo Début de la fusion des fichiers...
+
+:: Parcourt tous les fichiers de manière récursive (dans le dossier et les sous-dossiers)
+for /R %%i in (*) do (
+    :: Exclut le script lui-même et le fichier de sortie pour éviter de les inclure dedans
+    if "%%~nxži" neq "%output%" if "%%~nxži" neq "%~nx0" (
+        echo Traitement de : %%i
+        echo ======================================== >> "%output%"
+        echo Fichier : %%i >> "%output%"
+        echo ======================================== >> "%output%"
+        type "%%i" >> "%output%"
+        echo. >> "%output%"
+        echo. >> "%output%"
+    )
+)
+
+echo.
+echo Opération terminée ! Tous les fichiers ont été regroupés dans "%output%".
+pause 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\main.cpp 
+======================================== 
+#define NOMINMAX
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+#include <vector>
+#include <random>
+#include <chrono>
+#include <cmath>
+#include <map>
+#include <algorithm>
+
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#include "Engine/Drumsta.h"
+
+
+
+// Graphcis
+#include "Importer/AssetImporter.h"
+#include "Datas/DatasType.h"
+#include "Engine/Gameplay/Input/KeyboardInput.h"
+#include "Engine/Rendering/OpenGL/Texture.h"
+#include "Engine/Rendering/OpenGL/Shader.h"
+#include <miniaudio.h>
+#include "Engine/Rendering/GPUScene.h"
+#include "Engine/Rendering/RenderingManager.h"
+#include "Engine/Geometries/MeshGenerator.h"
+
+//Audio
+
+#include "Engine/Audio/Audio.h"
+
+
+#include <stb_image.h>
+#include <stb_image_write.h>
+
+
+
+
+
+
+
+void HandleCameraMovement(
+    const KeyboardInput& inputDevice,
+    glm::vec3& cameraPos,
+    const float& camMovementSpeed
+
+)
+{
+
+        //processInput(window, cameraPos);
+        // -Z is away froim screren
+        if (KeyboardInput::IsKeyPressed(GLFW_KEY_W))
+        {
+            cameraPos.z -= camMovementSpeed;
+        }
+        // +Z is into the screen
+        if (KeyboardInput::IsKeyPressed(GLFW_KEY_S))
+        {
+            cameraPos.z += camMovementSpeed;
+        }
+
+        // -x is left
+        if (KeyboardInput::IsKeyPressed(GLFW_KEY_A))
+        {
+            cameraPos.x -= camMovementSpeed;
+        }
+        // +x is right
+        if (KeyboardInput::IsKeyPressed(GLFW_KEY_D))
+        {
+            cameraPos.x += camMovementSpeed;
+        }
+
+        // Up 
+        if (KeyboardInput::IsKeyPressed(GLFW_KEY_Q))
+        {
+            cameraPos.y += camMovementSpeed;
+        }
+        // Down
+        if (KeyboardInput::IsKeyPressed(GLFW_KEY_E))
+        {
+            cameraPos.y -= camMovementSpeed;
+        }
+}
+
+
+
+
+int main()
+{
+    void();
+    Drumsta app{};
+    app.Start();
+    app.ImportAsset("Assets/Models/texture.glb");
+    app.InitScene();
+
+    app.Run();
+    return 1;
+
+}
+ 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\oldmain.txt 
+======================================== 
+
+int ___main()
+{
+
+    Audio music("Assets/Audio/drumsta.mp3");
+    music.Play();
+
+
+    GLuint handle = textureTest.getGPUHandle();
+    bool isUplaoded = textureTest.existOnGpu();
+    if (isUplaoded)
+    {
+        std::cout << "Isd on GPU : " << "GPU Texture ID: " << handle << std::endl;
+    }
+    else
+    {
+        std::cout << "Not uploaded" << std::endl;
+    }
+    // test
+    std::vector<CPU_Color> testSampling{};
+    testSampling.reserve(3);
+    testSampling.push_back(textureTest.GetPixelColor(1, 0)); // (255, 0 , 0 )
+    testSampling.push_back(textureTest.GetPixelColor(45, 0));// (0, 255 , 0 )
+    testSampling.push_back(textureTest.GetPixelColor(1, 35));// (0, 0, 255)
+
+    for (int i{}; i < testSampling.size(); i++)
+    {
+        CPU_Color curr = testSampling[i];
+        std::cout << "R: " << curr.r << " G: " << curr.g << "B: " << curr.b << std::endl;
+    }
+
+    textureTest.SaveToFile("Assets/Textures/poney.png");
+
+    //textureTest.UploadToGpu();
+
+
+    // test texture upl;oad to GPU
+    // 
+//    std::cout << textureTest.GetPixelColor(0, 0).r << ;
+    //return 0;
+
+
+    if (0)
+    {
+        if (!initOpenGL(windowWidth, windowHeight, "Drumsta LOVE"))
+            return -1;
+
+
+        Texture textureTest{ "Assets/Textures/palette.png" };
+        //textures.push_back(textureTest);
+
+        textureTest.UploadToGpu();
+
+        GPUScene gpuScene;
+        initScene(gpuScene);
+        RenderingManager renderer;
+        glm::vec3 cameraPos = glm::vec3(0.0f, 2.0f, 18.0f);
+        KeyboardInput input(window); // 
+
+
+        glEnable(GL_DEPTH_TEST);
+
+
+        while (!glfwWindowShouldClose(window))
+        {
+            glfwPollEvents();
+            glClearColor(0.1f, 0.1f, 0.12f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            HandleCameraMovement(input, cameraPos, 0.25f);
+
+            glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+            glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+            glm::mat4 view = glm::lookAt(cameraPos, cameraFront, cameraUp);
+            glm::mat4 proj = glm::perspective(glm::radians(45.0f),
+                (float)windowWidth / (float)windowHeight,
+                0.1f, 100.0f);
+
+            glm::mat4 viewProj = proj * view;
+
+
+            renderer.Render(
+                viewProj,
+                textureTest,
+                gpuScene,
+                shaderPrograms[0]
+            );
+
+            //   render(viewProj, textureTest);
+              // render(viewProj, textureTest, gpuScene);
+
+            glfwSwapBuffers(window);
+        }
+        glfwTerminate();    if (!initOpenGL(windowWidth, windowHeight, "Drumsta LOVE"))
+            return -1;
+
+
+        Texture textureTest{ "Assets/Textures/palette.png" };
+        //textures.push_back(textureTest);
+
+        textureTest.UploadToGpu();
+
+        GPUScene gpuScene;
+        initScene(gpuScene);
+        RenderingManager renderer;
+        glm::vec3 cameraPos = glm::vec3(0.0f, 2.0f, 18.0f);
+        KeyboardInput input(window); // 
+
+
+        glEnable(GL_DEPTH_TEST);
+
+
+        while (!glfwWindowShouldClose(window))
+        {
+            glfwPollEvents();
+            glClearColor(0.1f, 0.1f, 0.12f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            HandleCameraMovement(input, cameraPos, 0.25f);
+
+            glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+            glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+            glm::mat4 view = glm::lookAt(cameraPos, cameraFront, cameraUp);
+            glm::mat4 proj = glm::perspective(glm::radians(45.0f),
+                (float)windowWidth / (float)windowHeight,
+                0.1f, 100.0f);
+
+            glm::mat4 viewProj = proj * view;
+
+
+            renderer.Render(
+                viewProj,
+                textureTest,
+                gpuScene,
+                shaderPrograms[0]
+            );
+
+            glfwSwapBuffers(window);
+        }
+        glfwTerminate();
+
+    }
+
+    return 0;
+}
+ 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\Datas\DatasType.h 
+======================================== 
+#pragma once
+
+#include <vector>
+#include <string>
+#include <glm/glm.hpp>
+///  INPUT 
+enum KeyboardMode
+{
+    WASD = 0,
+    QWASED,
+    WASD_ARROW,
+};
+/// INPUT
+
+
+/// Rendering
+struct CPU_Color
+{
+    float r, g, b;
+};
+
+struct Vertex
+{
+    float x, y, z;
+    float nx, ny, nz;
+    float u, v;
+};
+
+struct Mesh
+{
+    std::vector<Vertex>   verts;
+    std::vector<uint32_t> indices;
+    uint32_t              materialId = 0;
+
+    uint32_t vertexCount() const { return (uint32_t)verts.size(); }
+    uint32_t indexCount()  const { return (uint32_t)indices.size(); }
+
+
+};
+
+struct DrawColor
+{
+    float red;
+    float green;
+    float blue;
+    float padding1;
+
+};
+
+struct ImageData
+{
+    int width = 0;
+    int height = 0;
+
+    std::vector<unsigned char> rgba;
+};
+
+struct MaterialData
+{
+    std::string name;
+    glm::vec4 baseColorFactor{ 1.0f };
+    int32_t baseColorTextureIndex = -1;
+};
+struct GPUMaterial
+{
+    glm::vec4 baseColorFactor;
+    int32_t   baseColorTextureIndex;
+    int32_t   _pad[3];
+};
+
+/// Rendering
+ 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\Engine\Drumsta.cpp 
+======================================== 
+#include "Drumsta.h"
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+Drumsta::Drumsta()
+{
+
+}
+
+Drumsta::~Drumsta()
+{
+
+}
+
+
+void Drumsta::Start()
+{
+	//m_glContext.setOpenGLContextDatas(1080, 720, "Engine",4,6);
+	InitOpenGL();
+    
+	//ImportAsset("");
+}
+
+
+void Drumsta::loadTexture(
+    const std::string& name,
+    const std::string& path)
+{
+    auto [it, inserted] = m_Textures.try_emplace(name, path);
+    it->second.UploadToGpu();
+}
+
+void Drumsta::InitOpenGL()
+{
+	m_glContext.setOpenGLContextDatas(1080, 720, "Engine", 4, 6);
+	bool status = m_glContext.initOpenGL();
+
+}
+
+void Drumsta::Run()
+{
+    glm::vec3 cameraPos = glm::vec3(0.0f, 2.0f, 18.0f);
+    while (!glfwWindowShouldClose(m_glContext.window))
+    {
+        glfwPollEvents();
+        glClearColor(0.1f, 0.1f, 0.12f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+        
+        glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+        glm::mat4 view = glm::lookAt(cameraPos, cameraFront, cameraUp);
+        glm::mat4 proj = glm::perspective(glm::radians(45.0f),
+            (float) m_glContext.getWindowsWidth()/ (float)m_glContext.getWindowsheight(),
+            0.1f, 100.0f);
+
+        glm::mat4 viewProj = proj * view;
+
+        m_renderinManager.Render(viewProj,
+            m_Textures.at("palette"),
+            m_gpuScene,
+            shadersPrograms["basicShader"]
+            );
+        glfwSwapBuffers(m_glContext.window);
+
+    }
+}
+
+void Drumsta::ImportAsset(const std::string& filePathGLB)
+{
+	std::cout << "[ImportAsset] Loading " << filePathGLB << std::endl;
+	m_importer.LoadAsset(filePathGLB, meshes, transforms, drawColor, materialDatas, imageDatas);
+    
+
+
+}
+
+
+
+void Drumsta::InitScene()
+{
+
+    
+    if (!GLAD_GL_ARB_bindless_texture)
+    {
+        std::cerr << "Update yourt GPU damn god !" << std::endl;
+        return;
+    }
+
+ //   m_textureHandles.resize(imageDatas.size());
+
+
+    //loadTexture("palette", "Assets/Textures/palette.png");
+	Shader shader(vertexShaders[0], fragmentShaders[0]);
+	shader.createShaderProgram();
+	GLuint gpuID = shader.getGPUID();
+	shadersPrograms["basicShader"] = gpuID;
+
+    uint32_t runningVertexOffset{ 0 };
+    uint32_t runningIndexOffset{ 0 };
+    std::cout << "Mesh Size: " << meshes.size() << std::endl;
+    std::cout << "Transform Size: " << transforms.size() << std::endl;
+    // Vertex
+    for (int i{}; i < meshes.size(); i++)
+    {
+        const Mesh& mesh = meshes[i];
+        allVertices.insert(allVertices.end(), mesh.verts.begin(), mesh.verts.end());
+        allIndices.insert(allIndices.end(), mesh.indices.begin(), mesh.indices.end());
+
+        DrawArraysIndirectCommand command;
+        command.count = mesh.indexCount();
+        command.instanceCount = 1;
+        command.first = runningIndexOffset; 
+        command.baseInstance = i;
+        drawCommands.push_back(command);
+
+        DrawMetadata meta;
+        meta.baseVertex = runningVertexOffset;
+        meta.materialIndex = mesh.materialId;
+        meta.textureIndex = 0xFFFFFFFFu;
+        if (mesh.materialId >= 0 && mesh.materialId < (int)materialDatas.size())
+        {
+            int tex = materialDatas[mesh.materialId].baseColorTextureIndex; // adapte au nom de ton champ
+            if (tex >= 0 && tex < (int)imageDatas.size())
+                meta.textureIndex = uint32_t(tex);
+        }
+        drawMetadata.push_back(meta);
+
+
+        runningVertexOffset += mesh.vertexCount();
+        runningIndexOffset += mesh.indexCount();
+
+    }
+    m_gpuScene.Upload(allVertices,
+        allIndices,
+        transforms,
+        drawMetadata,
+        drawColor,
+        drawCommands,
+        //m_textureHandles
+        imageDatas
+    );
+}
+ 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\Engine\Drumsta.h 
+======================================== 
+#pragma once
+
+#include <unordered_map>
+
+#include "Rendering/GPUScene.h"
+#include "../Importer/AssetImporter.h"
+#include "Rendering/OpenGL/OpenGLContext.h"
+#include "Rendering/RenderingManager.h"
+#include "Rendering/OpenGL/Texture.h"
+#include "Rendering/OpenGL/Shader.h"
+
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+
+class Drumsta
+{
+
+public:
+	Drumsta();
+	~Drumsta();
+	
+
+	std::vector<std::string> vertexShaders{
+	"Assets/Shaders/vertex.shader",
+	"Assets/Shaders/newvertex.shader"
+	};
+
+	std::vector<std::string> fragmentShaders{
+		"Assets/Shaders/frag.shader",
+		"Assets/Shaders/newfrag.shader"
+	};
+
+	void Start();
+	void Run();
+	
+	void ImportAsset(const std::string& filePathGLB);
+	void InitScene();
+
+private:
+	AssetImporter m_importer;
+	OpenGLContext m_glContext;
+	RenderingManager m_renderinManager = RenderingManager{};
+
+
+	void loadTexture(
+		const std::string& name,
+		const std::string& path
+	);
+	void InitOpenGL();
+
+	void createSSBOData();
+
+
+	//std::vector<GLuint> shaderPrograms{};
+	std::vector<Mesh> meshes = {};
+	std::vector<Vertex>   allVertices;
+	std::vector<uint32_t> allIndices;
+	std::vector<DrawArraysIndirectCommand> drawCommands;
+	std::vector<DrawMetadata> drawMetadata;
+	std::vector<DrawColor> drawColor;
+	std::vector<glm::mat4x4> transforms;
+	std::vector<Texture> textures;
+    std::vector<MaterialData> materialDatas;
+    std::vector<ImageData> imageDatas;
+
+    std::unordered_map<std::string, GLuint> shadersPrograms;
+	std::unordered_map<std::string, Texture> m_Textures;
+
+    std::vector<GLuint> m_glTextures; // Texutre handles
+    std::vector<GLuint64> m_textureHandles;
+
+    GPUScene m_gpuScene = GPUScene{};
+    GLuint m_textureHandleSSBO = 0;
+    GLuint m_materialSSBO = 0;
+
+};
+ 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\Engine\Audio\Audio.cpp 
+======================================== 
+#include "Audio.h"
+
+#include <iostream>
+
+Audio::Audio(const std::string& filepath)
+{
+    if (ma_engine_init(nullptr, &m_engine) != MA_SUCCESS)
+    {
+        std::cerr << "Failed to initialize audio engine\n";
+        return;
+    }
+
+    m_engineInitialized = true;
+
+    if (ma_sound_init_from_file(&m_engine,
+        filepath.c_str(),0,
+        nullptr,
+        nullptr,
+        &m_sound
+    ) != MA_SUCCESS)
+    {
+        std::cerr << "Failed to load audio file: "
+            << filepath
+            << '\n';
+
+        return;
+    }
+
+    m_soundInitialized = true;
+}
+
+Audio::~Audio()
+{
+    if (m_soundInitialized)
+    {
+        ma_sound_uninit(&m_sound);
+    }
+
+    if (m_engineInitialized)
+    {
+        ma_engine_uninit(&m_engine);
+    }
+}
+
+void Audio::Play()
+{
+    if (m_soundInitialized)
+    {
+        ma_sound_start(&m_sound);
+    }
+}
+ 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\Engine\Audio\Audio.h 
+======================================== 
+#pragma once
+
+#include <string>
+#include <miniaudio.h>
+
+class Audio
+{
+public:
+    explicit Audio(const std::string& filepath);
+    ~Audio();
+
+    void Play();
+
+private:
+    ma_engine m_engine{};
+    ma_sound m_sound{};
+
+    bool m_engineInitialized = false;
+    bool m_soundInitialized = false;
+};
+ 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\Engine\Gameplay\Input\KeyboardInput.cpp 
+======================================== 
+#include "KeyboardInput.h"
+#include <iostream>
+
+std::unordered_map<int, bool> KeyboardInput::keyStates;
+
+KeyboardInput::KeyboardInput()
+{
+    std::cout << "Keyboard system\n";
+}
+
+KeyboardInput::KeyboardInput(GLFWwindow* window)
+{
+    std::cout << "Keyboard system with callback\n";
+    // everytime a key is rpesserd we set here the function to execute
+    glfwSetKeyCallback(window, CurrentButtonPressedCallBack);
+}
+
+// This runs everytime a key is presed
+void KeyboardInput::CurrentButtonPressedCallBack(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (action == GLFW_PRESS)
+    {
+        keyStates[key] = true;
+    }
+        
+    else if (action == GLFW_RELEASE)
+    {
+        keyStates[key] = false;
+    }
+}
+
+bool KeyboardInput::IsKeyPressed(int key)
+{
+    auto it = keyStates.find(key);
+    return it != keyStates.end() && it->second;
+}
+ 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\Engine\Gameplay\Input\KeyboardInput.h 
+======================================== 
+#pragma once
+#include <GLFW/glfw3.h>
+#include "../../../Datas/DatasType.h"
+#include <unordered_map>
+class KeyboardInput
+{
+
+
+    public:
+
+        KeyboardInput();
+        KeyboardInput(GLFWwindow* window);
+        static void CurrentButtonPressedCallBack(GLFWwindow* window, int key, int scancode, int action, int mods);
+        static bool IsKeyPressed(int key);
+    private:
+        static std::unordered_map<int, bool> keyStates;
+};
+ 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\Engine\Geometries\MeshGenerator.h 
+======================================== 
+#pragma once
+#include "../../Datas/DatasType.h"
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+#include <vector>
+#include <random>
+#include <chrono>
+#include <cmath>
+#include <map>
+#include <algorithm>
+
+Mesh generateCube(float size = 1.0f)
+{
+    Mesh mesh;
+    float h = size * 0.5f;
+
+    mesh.verts = {
+        { -h, -h, -h },
+        {  h, -h, -h },
+        {  h,  h, -h },
+        { -h,  h, -h },
+        { -h, -h,  h },
+        {  h, -h,  h },
+        {  h,  h,  h },
+        { -h,  h,  h },
+    };
+
+    mesh.indices = {
+        0, 1, 2,  2, 3, 0,
+        4, 6, 5,  6, 4, 7,
+        0, 3, 7,  7, 4, 0,
+        1, 5, 6,  6, 2, 1,
+        0, 4, 5,  5, 1, 0,
+        3, 2, 6,  6, 7, 3,
+    };
+
+    return mesh;
+}
+Mesh generateIcosphere(float radius = 1.0f, int subdivisions = 1)
+{
+    // Al;gos stolen from Belnder src code
+    Mesh mesh;
+    const float t = (1.0f + std::sqrt(5.0f)) * 0.5f;
+    std::vector<Vertex> baseVerts = {
+        {-1,  t,  0}, { 1,  t,  0}, {-1, -t,  0}, { 1, -t,  0},
+        { 0, -1,  t}, { 0,  1,  t}, { 0, -1, -t}, { 0,  1, -t},
+        { t,  0, -1}, { t,  0,  1}, {-t,  0, -1}, {-t,  0,  1},
+    };
+    auto normalize = [](Vertex v) -> Vertex {
+        float len = std::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+        return { v.x / len, v.y / len, v.z / len };
+        };
+
+    for (auto& v : baseVerts)
+        v = normalize(v);
+
+    mesh.verts = baseVerts;
+
+
+    std::vector<uint32_t> baseIndices = {
+        0, 11, 5,   0, 5, 1,    0, 1, 7,    0, 7, 10,   0, 10, 11,
+        1, 5, 9,    5, 11, 4,   11, 10, 2,  10, 7, 6,   7, 1, 8,
+        3, 9, 4,    3, 4, 2,    3, 2, 6,    3, 6, 8,    3, 8, 9,
+        4, 9, 5,    2, 4, 11,   6, 2, 10,   8, 6, 7,    9, 8, 1,
+    };
+
+    mesh.indices = baseIndices;
+    std::map<uint64_t, uint32_t> midpointCache;
+
+    auto getMidpoint = [&](uint32_t i0, uint32_t i1) -> uint32_t
+        {
+            uint64_t key = (std::min(i0, i1) < std::max(i0, i1))
+                ? ((uint64_t)std::min(i0, i1) << 32) | std::max(i0, i1)
+                : ((uint64_t)std::max(i0, i1) << 32) | std::min(i0, i1);
+
+            auto it = midpointCache.find(key);
+            if (it != midpointCache.end())
+                return it->second;
+
+            Vertex v0 = mesh.verts[i0];
+            Vertex v1 = mesh.verts[i1];
+            Vertex mid = {
+                (v0.x + v1.x) * 0.5f,
+                (v0.y + v1.y) * 0.5f,
+                (v0.z + v1.z) * 0.5f
+            };
+            mid = normalize(mid);
+
+            uint32_t newIndex = (uint32_t)mesh.verts.size();
+            mesh.verts.push_back(mid);
+            midpointCache[key] = newIndex;
+            return newIndex;
+        };
+
+    for (int s = 0; s < subdivisions; ++s)
+    {
+        std::vector<uint32_t> newIndices;
+        newIndices.reserve(mesh.indices.size() * 4);
+
+        for (size_t i = 0; i < mesh.indices.size(); i += 3)
+        {
+            uint32_t i0 = mesh.indices[i];
+            uint32_t i1 = mesh.indices[i + 1];
+            uint32_t i2 = mesh.indices[i + 2];
+
+            uint32_t a = getMidpoint(i0, i1);
+            uint32_t b = getMidpoint(i1, i2);
+            uint32_t c = getMidpoint(i2, i0);
+
+            newIndices.insert(newIndices.end(), {
+                i0, a, c,
+                i1, b, a,
+                i2, c, b,
+                a,  b, c
+                });
+        }
+
+        mesh.indices = newIndices;
+        midpointCache.clear();
+    }
+
+    for (auto& v : mesh.verts)
+    {
+        v.x *= radius;
+        v.y *= radius;
+        v.z *= radius;
+    }
+
+    return mesh;
+}
+ 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\Engine\Rendering\GPUScene.cpp 
+======================================== 
+#include "GPUScene.h"
+
+
+
+/*
+
+    const GLuint buffers[] = {
+        ssboVertex,
+        ssboIndex,
+        ssboTransform,
+        ssboMetadata,
+        ssboColor,
+        indirectBuffer
+    };
+
+    glDeleteBuffers(6, buffers);
+    glDeleteVertexArrays(1, &vao);
+*/
+
+GPUScene::~GPUScene()
+{
+
+
+    const GLuint buffersToDelete[] =
+    {
+        ssboVertex,
+        ssboIndex,
+        ssboTransform,
+        ssboMetadata,
+        ssboColor,
+        indirectBuffer
+    };
+
+
+    glDeleteBuffers(6, buffersToDelete);
+    glDeleteVertexArrays(1, &vao);
+}
+
+// bind ssbo
+void GPUScene::Bind() const
+{
+
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssboVertex);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ssboIndex);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ssboTransform);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssboMetadata);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, ssboColor);
+
+    glBindVertexArray(vao);
+    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer);
+}
+
+// drae scene from upolaoded gpu datas 
+void GPUScene::Draw() const
+{
+
+    glMultiDrawArraysIndirect(
+        GL_TRIANGLES,
+        nullptr,
+        drawCount,
+        0
+    );
+}
+
+
+
+void GPUScene::Upload(
+    const std::vector<Vertex>& vertices,
+    const std::vector<uint32_t>& indices,
+    const std::vector<glm::mat4>& transforms,
+    const std::vector<DrawMetadata>& metadata,
+    const std::vector<DrawColor>& colors,
+    const std::vector<DrawArraysIndirectCommand>& commands,
+    //const std::vector<GLuint64>& textureHandles
+    const std::vector<ImageData>& images
+    )
+{
+    glGenVertexArrays(1, &vao);
+    // Vertex SBO
+    glGenBuffers(1, &ssboVertex);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssboVertex);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssboVertex);
+
+    // Indinces 
+    glGenBuffers(1, &ssboIndex);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssboIndex);
+    glBufferData(GL_SHADER_STORAGE_BUFFER,
+        indices.size() * sizeof(uint32_t),
+        indices.data(),
+        GL_STATIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ssboIndex);
+
+    // Transfdorm
+    glGenBuffers(1, &ssboTransform);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssboTransform);
+    glBufferData(GL_SHADER_STORAGE_BUFFER,
+        transforms.size() * sizeof(glm::mat4), 
+        transforms.data(),
+        GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ssboTransform);
+
+    // Metadata
+    glGenBuffers(1, &ssboMetadata);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssboMetadata);
+    glBufferData(GL_SHADER_STORAGE_BUFFER,
+        metadata.size() * sizeof(DrawMetadata),
+        metadata.data(),
+        GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssboMetadata);
+
+    glGenBuffers(1, &ssboColor);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssboColor);
+    glBufferData(GL_SHADER_STORAGE_BUFFER,
+        colors.size() * sizeof(DrawColor),
+        colors.data(),
+        GL_DYNAMIC_DRAW);
+
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, ssboColor);
+
+    // GPU draw command
+    glGenBuffers(1, &indirectBuffer);
+    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer);
+    glBufferData(GL_DRAW_INDIRECT_BUFFER,
+        commands.size() * sizeof(DrawArraysIndirectCommand),
+        commands.data(),
+        GL_DYNAMIC_DRAW);
+
+
+    // draew count GPOU side 
+    drawCount = static_cast<GLsizei>(commands.size());
+
+    // SSBO Texture
+
+}
+
+
+void GPUScene::UploadTextures(const std::vector<ImageData>& images)
+{
+    glTextures.resize(images.size());
+    textureHandles.resize(images.size());
+    
+    for (size_t i{}; i < images.size(); i++)
+    {
+        const ImageData& img = images[i];
+
+        GLuint tex;
+        glCreateTextures(GL_TEXTURE_2D, 1, &tex);
+        glTextureStorage2D(tex, 1, GL_SRGB8_ALPHA8, img.width, img.height);
+        glTextureSubImage2D(tex, 0, 0, 0, img.width, img.height,
+            GL_RGBA, GL_UNSIGNED_BYTE, img.rgba.data());
+        glTextureParameteri(tex, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTextureParameteri(tex, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        GLuint64 handle = glGetTextureHandleARB(tex);
+        glMakeTextureHandleResidentARB(handle);
+
+        glTextures[i] = tex;
+        textureHandles[i] = handle;
+    }
+
+
+    std::vector<GLuint64> handles = textureHandles;
+    if (handles.empty())
+    {
+        handles.push_back(0);
+    }
+
+    glCreateBuffers(1, &ssboTextureHandles);
+    glNamedBufferStorage(ssboTextureHandles, handles.size() * sizeof(GLuint64),
+        handles.data(), 0);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, ssboTextureHandles);
+
+} 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\Engine\Rendering\GPUScene.h 
+======================================== 
+#pragma once
+#include <vector>
+
+#include "../../Datas/DatasType.h"
+
+#include "RenderingData.h"
+
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+/*
+    CPU acxcessible data on top of GPU already uploaded data.
+*/
+
+class GPUScene
+{
+
+public:
+
+    GPUScene() = default;
+    ~GPUScene();
+    GPUScene(const GPUScene&) = delete;
+    GPUScene& operator=(const GPUScene&) = delete;
+
+    void Bind() const;
+    void Draw() const;
+
+    void Upload(
+        const std::vector<Vertex>& vertices,
+        const std::vector<uint32_t>& indices,
+        const std::vector<glm::mat4>& transforms,
+        const std::vector<DrawMetadata>& metadata,
+        const std::vector<DrawColor>& colors,    
+        const std::vector<DrawArraysIndirectCommand>& commands,
+        //const std::vector<GLuint64>& textureHandles
+        const std::vector<ImageData>& images
+    );
+
+
+private:
+
+    void UploadTextures(const std::vector<ImageData>& images);
+
+    GLuint ssboVertex = 0;
+    GLuint ssboIndex = 0;
+    GLuint ssboTransform = 0;
+    GLuint ssboMetadata = 0;
+    GLuint ssboColor = 0;
+    GLuint ssboTextureHandles = 0;
+    GLuint indirectBuffer = 0;
+    GLuint vao = 0;
+
+    GLsizei drawCount = 0;
+    std::vector<GLuint>   glTextures;
+    std::vector<GLuint64> textureHandles;
+};
+
+
+
+
+ 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\Engine\Rendering\RenderingData.h 
+======================================== 
+#pragma once
+#include <cstdint>
+
+
+
+struct DrawArraysIndirectCommand
+{
+    uint32_t count;
+    uint32_t instanceCount;
+    uint32_t first;
+    uint32_t baseInstance;
+};
+
+struct DrawMetadata
+{
+    uint32_t baseVertex;
+    uint32_t materialIndex;
+    uint32_t textureIndex;
+    uint32_t padding1;
+};
+
+
+
+ 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\Engine\Rendering\RenderingManager.cpp 
+======================================== 
+#include "RenderingManager.h"
+#include "GPUScene.h"
+#include "OpenGL/Texture.h"
+
+#include <glm/gtc/type_ptr.hpp>
+
+
+RenderingManager::RenderingManager()
+{
+
+}
+void RenderingManager::Render(
+    const glm::mat4& viewProj,
+    Texture& texture,
+    const GPUScene& gpuScene,
+    GLuint shaderProgram)
+{
+
+    opaquePass.Execute(
+        viewProj,
+        texture,
+        gpuScene,
+        shaderProgram
+    );
+}
+ 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\Engine\Rendering\RenderingManager.h 
+======================================== 
+#pragma once
+
+#include "Passes/OpaquePass.h"
+
+#include <glad/glad.h>
+#include <glm/glm.hpp>
+
+
+
+
+class GPUScene;
+class Texture;
+
+class RenderingManager
+{
+public:
+    RenderingManager();
+    void Render(
+        const glm::mat4& viewProj,
+        Texture& texture,
+        const GPUScene& gpuScene,
+        GLuint shaderProgram
+    );
+
+
+private:
+    OpaquePass opaquePass;
+};
+ 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\Engine\Rendering\RenderPass.h 
+======================================== 
+ 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\Engine\Rendering\OpenGL\Fbo.cpp 
+======================================== 
+ 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\Engine\Rendering\OpenGL\Fbo.h 
+======================================== 
+ 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\Engine\Rendering\OpenGL\OpenGLContext.h 
+======================================== 
+#pragma once
+#include <string>
+#include <iostream>
+
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+class OpenGLContext
+{
+public:
+	GLFWwindow* window{ nullptr };
+
+	void onFramebufferResize(int width, int height)
+	{
+		m_windowWidth = width;
+		m_windowHeight = height;
+		glViewport(0, 0, width, height);
+	}
+
+
+	OpenGLContext()
+	{}
+	OpenGLContext(
+		const int& width,
+		const int& height,
+		const std::string& title,
+		const int& openGLMajorVersion,
+		const int& openGLMinorVersion
+	)
+	{
+		m_windowWidth = width;
+		m_windowHeight = height;
+		m_OpenGLVersionMajor = openGLMajorVersion;
+		m_OpenGLVersionMinor = openGLMinorVersion;
+		m_windowTitle = title;
+		
+		std::cout << "OPenGL Context" << std::endl;
+	}
+	bool initOpenGL()
+	{
+		if (!glfwInit())
+		{
+			std::cout << "Failed to init GLFW\n";
+			return false;
+		}
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, m_OpenGLVersionMajor);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, m_OpenGLVersionMinor);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#ifdef _DEBUG
+		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+#endif
+
+		window = glfwCreateWindow(m_windowWidth, m_windowHeight, m_windowTitle.c_str(), nullptr, nullptr);
+		if (!window)
+		{
+			std::cerr << "Failed to create GLFW window\n";
+			glfwTerminate();
+			return false;
+		}
+
+
+		glfwMakeContextCurrent(window);
+		glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+		glfwSwapInterval(1); // vsync
+
+
+
+		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+		{
+			std::cerr << "Failed to init GLAD\n";
+			return false;
+		}
+		bool glad{ loadGladPointers() };
+		if (glad == false)
+		{
+			return glad;
+		}
+
+		std::cout << "OpenGL " << glGetString(GL_VERSION) << "\n";
+		std::cout << "GPU: " << glGetString(GL_RENDERER) << "\n";
+
+#ifdef _DEBUG
+		glEnable(GL_DEBUG_OUTPUT);
+		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+		glDebugMessageCallback(glDebugCallback, nullptr);
+#endif
+		
+		return true;
+
+	}
+
+
+
+
+
+	std::string getGPUName()
+	{
+		std::string gpuName = reinterpret_cast <const char*>(glGetString(GL_RENDERER));
+		return gpuName;
+	}
+	std::string getOpenGLVersion()
+	{
+		std::string version = reinterpret_cast <const char*>(glGetString(GL_VERSION));
+		return version;
+	}
+
+
+	void setOpenGLContextDatas(
+		const int& width,
+		const int& height,
+		const std::string& title,
+		const int& openGLMajorVersion,
+		const int& openGLMinorVersion
+	)
+	{
+		m_windowWidth = width;
+		m_windowHeight = height;
+		m_OpenGLVersionMajor = openGLMajorVersion;
+		m_OpenGLVersionMinor = openGLMinorVersion;
+		m_windowTitle = title;
+	}
+
+	int getWindowsWidth()
+	{
+		return m_windowWidth;
+	}
+
+	int getWindowsheight()
+	{
+		return m_windowHeight;
+	}
+	
+private:
+
+
+	int m_windowWidth, m_windowHeight;
+	std::string m_windowTitle;
+	int m_OpenGLVersionMinor;
+	int m_OpenGLVersionMajor;
+	static void framebufferSizeCallback(GLFWwindow* window, int width, int height)
+	{
+		OpenGLContext* self = static_cast<OpenGLContext*>(glfwGetWindowUserPointer(window));
+		if (self)
+		{
+			self->onFramebufferResize(width, height);
+		}
+			
+	}
+	static void APIENTRY glDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
+		GLsizei length, const GLchar* message, const void* userParam)
+	{
+		if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
+			return;
+		std::cerr << "[GL DEBUG] " << message << "\n";
+	}
+
+
+	bool loadGladPointers()
+	{
+		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+		{
+			std::cerr << "Failed to init GLAD\n";
+			return false;
+		}
+		return true;
+	}
+
+}; 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\Engine\Rendering\OpenGL\Shader.cpp 
+======================================== 
+#include "Shader.h"
+
+Shader::Shader(
+    const std::string& vertex,
+    const std::string& frag
+)
+{
+    vertexSourceCode = FileUtils::GetInstance().ReadTextFileLock(vertex);
+    fragmentSourceCode = FileUtils::GetInstance().ReadTextFileLock(frag);
+
+
+}
+
+Shader::Shader(
+    const std::string& compute
+)
+{
+
+}
+Shader::~Shader()
+{
+
+}
+
+
+
+void Shader::createShaderProgram()
+{
+    if (vertexSourceCode.empty() || fragmentSourceCode.empty())
+    {
+        std::cerr << "Failed to load shader, kille.\n";
+    }
+
+
+    GLuint vertexShader = compileShaderStage(vertexSourceCode, GL_VERTEX_SHADER);
+    GLuint fragmentShader = compileShaderStage(fragmentSourceCode, GL_FRAGMENT_SHADER);
+
+    if (vertexShader == 0 || fragmentShader == 0)
+    {
+        if (vertexShader) glDeleteShader(vertexShader);
+        if (fragmentShader) glDeleteShader(fragmentShader);
+    }
+
+    GLuint program = glCreateProgram();
+    glAttachShader(program, vertexShader);
+    glAttachShader(program, fragmentShader);
+    glLinkProgram(program);
+
+
+    GLint linkSuccess = 0;
+    glGetProgramiv(program, GL_LINK_STATUS, &linkSuccess);
+    if (program != 0)
+    {
+        std::cout << "Shader Compiled Shader id " << shaderID << std::endl;
+        shaderID = (program);
+    }
+
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+}
+GLuint Shader::compileShaderStage(
+    const std::string& source,
+    GLenum shaderType
+)
+{
+    GLuint shader = glCreateShader(shaderType);
+    const char* src = source.c_str();
+
+    glShaderSource(shader, 1, &src, nullptr);
+    glCompileShader(shader);
+
+    GLint success = 0;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+
+    if (!success)
+    {
+        GLint logLength = 0;
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
+
+        std::vector<char> log(logLength > 0 ? logLength : 1);
+        glGetShaderInfoLog(shader, logLength, nullptr, log.data());
+
+        std::cerr << "Shader compile error (" << source << "):\n" << log.data() << "\n";
+
+        glDeleteShader(shader);
+        return 0;
+    }
+    return shader;
+}
+
+
+GLuint Shader::getGPUID()
+{
+    return shaderID;
+}
+ 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\Engine\Rendering\OpenGL\Shader.h 
+======================================== 
+#pragma once
+#include <iostream>
+#include <vector>
+
+#include "../../Utils/FileUtils.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+class Shader
+{
+public:
+    Shader(
+        const std::string& vertex,
+        const std::string& frag
+        );
+
+    Shader(
+        const std::string& compute
+    );
+    ~Shader();
+
+    void createShaderProgram();
+
+    GLuint getGPUID();
+    
+    //void changeVertexSource(const std::string in);
+    //void changeFragmentSource(const std::string in);
+
+private:
+    std::string vertexSourceCode;
+    std::string fragmentSourceCode;
+    GLuint vtxID;
+    GLuint fragID;
+
+    GLuint shaderID;
+    GLuint compileShaderStage(
+        const std::string& source,
+        GLenum shaderType
+    );
+
+};
+
+ 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\Engine\Rendering\OpenGL\Texture.cpp 
+======================================== 
+#include "Texture.h"
+#include <iostream>
+
+
+
+Texture::Texture()
+{
+    std::cout << "Empty texture";
+    
+}
+
+Texture::Texture(const std::string& path)
+    : textureData(nullptr),
+    width(0),
+    height(0),
+    channels(0),
+    gpuTextureID(0),
+    textureFormat(GL_RGB)
+{
+    TexturePath = path;
+
+    textureData = stbi_load(path.c_str(),&width,&height,&channels,0);
+
+    if (!textureData)
+    {
+        std::cerr << "Failed to load image: "
+            << stbi_failure_reason()
+            << std::endl;
+        return;
+    }
+
+    setTextureFormat();
+
+    ShowTextureInfos();
+}
+
+
+void Texture::ShowTextureInfos()
+{
+    std::cout << "************************" << std::endl;
+    std::cout << "*      Texture Infos   *" << std::endl;
+    std::cout << "************************" << std::endl;
+    std::cout << "\t Path: " << TexturePath << std::endl;
+    std::cout << "\t Width: " << width << std::endl;
+    std::cout << "\t Heifht: " << height << std::endl;
+
+    
+}
+
+
+CPU_Color Texture::GetPixelColor(const int& _x, const int& _y)
+{
+
+    CPU_Color res{};
+    int index = (_y * width + _x) * channels;
+    // ecept is flat will alwayus bve rgb
+    res.r = textureData[index];
+    if (channels >= 2)
+    {
+        res.g = textureData[index + 1];
+    }
+    if (channels >= 3)
+    {
+        res.b = textureData[index + 2];
+    }
+    //if (channels >= 4) res.a = textureData[index + 3];
+
+
+    return res;
+}
+GLuint Texture::getGPUHandle()
+{
+    return gpuTextureID;
+}
+
+bool Texture::SaveToFile(const std::string& path) const
+{
+    if (textureData == nullptr)
+    {
+        std::cerr << "Cannot save texture: textureData is null." << std::endl;
+        return false;
+    }
+
+    int result = stbi_write_png(path.c_str(),width,height,channels,
+        textureData,
+        width * channels
+    );
+
+
+    if (result == 0)
+    {
+        std::cerr << "Failed to save texture: " << path << std::endl;
+        return false;
+    }
+
+    std::cout << "Texture saved: " << path << std::endl;
+    return true;
+}
+
+void Texture::UploadToGpu()
+{
+    if (!textureData) { return; }
+    if (gpuTextureID == 0) { glGenTextures(1, &gpuTextureID); }
+
+    glBindTexture(GL_TEXTURE_2D, gpuTextureID);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexImage2D(GL_TEXTURE_2D,0,textureFormat,width,height,0,textureFormat,GL_UNSIGNED_BYTE,textureData);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void Texture::setTextureFormat()
+{
+    switch (channels)
+    {
+    case 1:
+        textureFormat = GL_RED;
+        break;
+
+    case 2:
+        textureFormat = GL_RG;
+        break;
+
+    case 3:
+        textureFormat = GL_RGB;
+        break;
+
+    case 4:
+        textureFormat = GL_RGBA;
+        break;
+
+    default:
+        std::cerr << "Unsupported channel count: "
+            << channels << std::endl;
+        textureFormat = GL_RGBA;
+        break;
+    }
+}
+
+
+//https://wikis.khronos.org/opengl/Pixel_Transfer#Pixel_layout
+void Texture::setTextureAlligmentForRGB()
+{
+    if (textureFormat == GL_RGB)
+    {
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    }
+}
+
+bool Texture::existOnGpu()
+{
+    return glIsTexture(gpuTextureID) ? true : false;
+}
+
+
+Texture::Texture(Texture&& other) noexcept
+    : textureData(other.textureData),
+    width(other.width),
+    height(other.height),
+    channels(other.channels),
+    gpuTextureID(other.gpuTextureID),
+    TexturePath(std::move(other.TexturePath)),
+    textureFormat(other.textureFormat)
+{
+    other.textureData = nullptr;
+    other.gpuTextureID = 0;
+}
+
+Texture& Texture::operator=(Texture&& other) noexcept
+{
+    if (this != &other)
+    {
+        release();
+        textureData = other.textureData;
+        width = other.width;
+        height = other.height;
+        channels = other.channels;
+        gpuTextureID = other.gpuTextureID;
+        TexturePath = std::move(other.TexturePath);
+        textureFormat = other.textureFormat;
+
+        other.textureData = nullptr;
+        other.gpuTextureID = 0;
+    }
+    return *this;
+}
+
+Texture::~Texture()
+{
+    release();
+}
+
+void Texture::release()
+{
+    if (textureData)
+    {
+        stbi_image_free(textureData);
+        textureData = nullptr;
+    }
+
+    if (gpuTextureID != 0)
+    {
+        glDeleteTextures(1, &gpuTextureID);
+        gpuTextureID = 0;
+    }
+}
+ 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\Engine\Rendering\OpenGL\Texture.h 
+======================================== 
+#pragma once
+#include <stb_image.h>
+#include <stb_image_write.h>
+#include <string>
+#include "../../../Datas/DatasType.h"
+#include <stb_image_write.h>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+
+class Texture
+{
+public:
+
+    Texture();
+    Texture(const std::string& path);
+    ~Texture();
+
+    // Owns a GL texture + stb pixels: no copies, moves only.
+    Texture(const Texture&) = delete;
+    Texture& operator=(const Texture&) = delete;
+    Texture(Texture&& other) noexcept;
+    Texture& operator=(Texture&& other) noexcept;
+
+    CPU_Color GetPixelColor(const int& x,const int& y);
+    void ShowTextureInfos();
+    bool SaveToFile(const std::string& path) const;
+    GLuint getGPUHandle();
+    void UploadToGpu();
+    bool existOnGpu();
+private:
+    unsigned char* textureData{ nullptr };
+    int width{ 0 }, height{ 0 }, channels{ 0 };
+    GLuint gpuTextureID{ 0 };
+    std::string TexturePath;
+    GLenum textureFormat{ GL_RGB };
+    void release();
+    void setTextureFormat();
+    void setTextureAlligmentForRGB();
+};
+ 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\Engine\Rendering\Passes\OpaquePass.cpp 
+======================================== 
+#include "OpaquePass.h"
+#include "../GPUScene.h"
+#include "../OpenGL/Texture.h"
+
+#include <glm/gtc/type_ptr.hpp>
+
+
+
+OpaquePass::OpaquePass()
+{
+
+}
+
+void OpaquePass::Execute(
+    const glm::mat4& viewProj,
+    Texture& texture,
+    const GPUScene& gpuScene,
+    GLuint shaderProgram
+
+)
+{
+
+    glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
+    glDisable(GL_BLEND);
+
+    glUseProgram(shaderProgram);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture.getGPUHandle());
+    GLint locTexture = glGetUniformLocation(shaderProgram, "uTexture");
+    glUniform1i(locTexture, 0);
+
+    GLint locViewProj = glGetUniformLocation(shaderProgram, "viewProj");
+    glUniformMatrix4fv(locViewProj, 1, GL_FALSE, glm::value_ptr(viewProj));
+
+    GLint locLightDir = glGetUniformLocation(shaderProgram, "lightDir");
+    glUniform3f(locLightDir, 0.4f, 0.8f, 0.3f);
+
+    GLint locLightColor = glGetUniformLocation(shaderProgram, "lightColor");
+    glUniform3f(locLightColor, 1.0f, 1.0f, 1.0f);
+
+    GLint locBaseColor = glGetUniformLocation(shaderProgram, "baseColor");
+    glUniform3f(locBaseColor, 0.8f, 0.8f, 0.8f);
+
+    //    glBindVertexArray(vao);
+
+    gpuScene.Bind();
+    gpuScene.Draw();
+}
+
+ 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\Engine\Rendering\Passes\OpaquePass.h 
+======================================== 
+#pragma once
+
+#include <glad/glad.h>
+#include <glm/glm.hpp>
+
+
+class GPUScene;
+class Texture;
+
+class OpaquePass
+{
+public:
+    OpaquePass();
+    void Execute(
+        const glm::mat4& viewProj,
+        Texture& texture,
+        const GPUScene& gpuScene,
+        GLuint shaderProgram
+    );
+
+
+
+private:
+
+};
+ 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\Engine\Rendering\Passes\ScenePass.cpp 
+======================================== 
+ 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\Engine\Rendering\Passes\ScenePass.h 
+======================================== 
+ 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\Engine\Utils\FileUtils.cpp 
+======================================== 
+#include "FileUtils.h"
+
+#include <fstream>
+#include <sstream>
+#include <filesystem>
+#include <stdexcept>
+
+
+// old junk before meyer singleton need to delete
+std::string FileUtils::ReadTextFileNoLock(const std::string& path) const 
+{
+    std::ifstream file(path);
+
+    if (!file.is_open())
+    {
+        throw std::runtime_error(
+            "Failed to open file: " + path
+        );
+    }
+
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+
+    return buffer.str();
+
+}
+
+
+std::string FileUtils::ReadTextFileLock(const std::string& path) 
+{
+    m_mutex.lock();
+    std::ifstream file(path);
+    if (!file.is_open())
+    {throw std::runtime_error(
+            "Failed to open file: " + path
+        );
+    }
+
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    m_mutex.unlock();
+    return buffer.str();
+
+}
+
+bool FileUtils::WriteTextFile(
+    const std::string& path,
+    const std::string& content)
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+    std::ofstream file(path);
+    if (!file.is_open())
+    {
+        return false;
+    }
+        
+
+    file << content;
+    return file.good();
+}
+
+bool FileUtils::Exists(const std::string& path)
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+
+    return std::filesystem::exists(path);
+}
+
+
+ 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\Engine\Utils\FileUtils.h 
+======================================== 
+#pragma once
+
+#include <string>
+#include <mutex>
+
+class FileUtils
+{
+public:
+    static FileUtils& GetInstance()
+    {
+        static FileUtils instance;
+        return instance;
+    }
+
+    FileUtils(const FileUtils&) = delete;
+    FileUtils& operator=(const FileUtils&) = delete;
+    FileUtils(FileUtils&&) = delete;
+    FileUtils& operator=(FileUtils&&) = delete;
+
+    // file sutff
+    std::string ReadTextFileNoLock(const std::string& path) const;
+    std::string ReadTextFileLock(const std::string& path);
+    bool WriteTextFile(
+        const std::string& path,
+        const std::string& content
+    );
+
+    bool Exists(const std::string& path);
+
+private:
+    FileUtils() = default;
+    ~FileUtils() = default;
+
+    std::mutex m_mutex;
+};
+ 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\Importer\AssetImporter.cpp 
+======================================== 
+#include "AssetImporter.h"
+#include <iostream>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+#include "stb_image.h"
+AssetImporter::AssetImporter()
+{
+}
+
+static glm::mat4 AiMatrixToGlm(const aiMatrix4x4& m)
+{
+    return glm::mat4(
+        m.a1, m.b1, m.c1, m.d1,
+        m.a2, m.b2, m.c2, m.d2,
+        m.a3, m.b3, m.c3, m.d3,
+        m.a4, m.b4, m.c4, m.d4
+    );
+}
+
+void AssetImporter::LoadAsset(
+    const std::string& path,
+    std::vector<Mesh>& _tmp,
+    std::vector<glm::mat4x4>& transforms,
+    std::vector<DrawColor>& drawColor,
+    std::vector<MaterialData>& materials,
+    std::vector<ImageData>& images
+)
+{
+    Assimp::Importer importer;
+    const aiScene* scene = importer.ReadFile(path,
+        aiProcess_Triangulate
+        | aiProcess_GenSmoothNormals
+        | aiProcess_FlipUVs
+        | aiProcess_CalcTangentSpace);
+
+    if (!scene || (scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) || !scene->mRootNode)
+    {
+        std::cerr << "Assimp: " << importer.GetErrorString() << "\n";
+        return;
+    }
+
+    std::cout << "File loaded" << std::endl;
+    std::cout << "meshes    : " << scene->mNumMeshes << "\n";
+    std::cout << "materials : " << scene->mNumMaterials << "\n";
+    std::cout << "textures  : " << scene->mNumTextures << "\n";
+    std::cout << "root      : " << scene->mRootNode->mName.C_Str()
+        << " (" << scene->mRootNode->mNumChildren << " child nodes)\n";
+
+
+    processMaterials(scene, path, materials, images);
+
+    processNode(
+        scene->mRootNode,
+        scene,
+        glm::mat4(1.0f),
+        _tmp,
+        transforms,
+        drawColor
+    );
+
+//    processNode(scene->mRootNode, scene, glm::mat4(1.0f), _tmp, transforms, drawColor);
+
+
+}
+
+bool AssetImporter::loadSceneInMemory(const std::string& path)
+{
+    return true;
+}
+
+void AssetImporter::processNode(
+    const aiNode* node,
+    const aiScene* scene,
+    const glm::mat4& parentXf,
+    std::vector<Mesh>& _tmp,
+    std::vector<glm::mat4x4>& transforms,
+    std::vector<DrawColor>& drawColor
+)
+{
+    glm::mat4 localXf = AiMatrixToGlm(node->mTransformation);
+    glm::mat4 worldXf = parentXf * localXf;
+  //  transforms.push_back(worldXf);
+    for (unsigned int i = 0; i < node->mNumMeshes; i++)
+    {
+        aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+        processMesh(mesh, scene, worldXf, _tmp, transforms, drawColor);
+    }
+
+    for (unsigned int i = 0; i < node->mNumChildren; i++)
+    {
+        processNode(node->mChildren[i], scene, worldXf, _tmp, transforms, drawColor);
+    }
+}
+
+void AssetImporter::processMesh(
+    aiMesh* mesh,
+    const aiScene* scene,
+    const glm::mat4& worldXf,
+    std::vector<Mesh>& _tmp,
+    std::vector<glm::mat4x4>& transforms,
+    std::vector<DrawColor>& drawColor
+)
+{
+    Mesh outMesh{};
+
+    for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+    {
+        Vertex v{};
+
+        v.x = mesh->mVertices[i].x;
+        v.y = mesh->mVertices[i].y;
+        v.z = mesh->mVertices[i].z;
+
+        // Extract niormals 
+        if (mesh->HasNormals())
+        {
+            v.nx = mesh->mNormals[i].x;
+            v.ny = mesh->mNormals[i].y;
+            v.nz = mesh->mNormals[i].z;
+        }
+  
+
+        // UV
+        if (mesh->HasTextureCoords(0))
+        {
+            v.u = mesh->mTextureCoords[0][i].x;
+            v.v = mesh->mTextureCoords[0][i].y;
+
+        }
+        // push back apres claice
+        outMesh.verts.push_back(v);
+    }
+
+    for (unsigned int i = 0; i < mesh->mNumFaces; i++)
+    {
+        const aiFace& face = mesh->mFaces[i];
+        for (unsigned int j = 0; j < face.mNumIndices; j++)
+        {
+            outMesh.indices.push_back(face.mIndices[j]);
+        }
+            
+    }
+    DrawColor meshcolor{ 1.0f, 1.0f, 1.0f, 0.0f };
+
+    if (mesh->mMaterialIndex < scene->mNumMaterials)
+    {
+        aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+        outMesh.materialId = mesh->mMaterialIndex;
+
+        aiColor3D diffuse(1.0f, 1.0f, 1.0f);
+        if (material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse) == AI_SUCCESS)
+        {
+            meshcolor.red = diffuse.r;
+            meshcolor.green = diffuse.g;
+            meshcolor.blue = diffuse.b;
+        }
+
+        std::cout << "Mesh Material Index: " << mesh->mMaterialIndex
+            << " Diffuse: (" << diffuse.r << ", " << diffuse.g << ", " << diffuse.b << ")\n";
+    }
+
+    // push the data to globals
+    drawColor.push_back(meshcolor);
+    transforms.push_back(worldXf);
+    _tmp.push_back(std::move(outMesh));
+}
+void AssetImporter::processMaterials(
+    const aiScene* scene,
+    const std::string& assetPath,
+    std::vector<MaterialData>& materials,
+    std::vector<ImageData>& images
+)
+{
+    std::cout << "Processing materials" << std::endl;
+    std::cout << "Material count: " << scene->mNumMaterials << "\n";
+
+    for (unsigned int i = 0; i < scene->mNumMaterials; ++i)
+    {
+        aiMaterial* material = scene->mMaterials[i];
+        MaterialData currentMat;
+        currentMat.name = material->GetName().C_Str();
+        aiColor4D albedo(1.0f, 1.0f, 1.0f, 1.0f);
+        if (material->Get(AI_MATKEY_BASE_COLOR, albedo) != AI_SUCCESS)
+            material->Get(AI_MATKEY_COLOR_DIFFUSE, albedo);
+        currentMat.baseColorFactor = glm::vec4(albedo.r, albedo.g, albedo.b, albedo.a);
+
+        // Texture
+        aiString texturePath;
+        if (material->GetTexture(aiTextureType_BASE_COLOR, 0, &texturePath) == AI_SUCCESS ||
+            material->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath) == AI_SUCCESS)
+        {
+            const aiTexture* embedded = scene->GetEmbeddedTexture(texturePath.C_Str());
+
+            if (embedded && embedded->mHeight == 0)
+            {
+                int width = 0, height = 0, channels = 0;
+                unsigned char* data = stbi_load_from_memory(
+                    reinterpret_cast<const unsigned char*>(embedded->pcData),
+                    static_cast<int>(embedded->mWidth),
+                    &width, &height, &channels, 4);
+
+                if (data)
+                {
+                    ImageData image;
+                    image.width = width;
+                    image.height = height;
+                    image.rgba.assign(data, data + width * height * 4);
+                    stbi_image_free(data);
+
+                    currentMat.baseColorTextureIndex = static_cast<int32_t>(images.size());
+                    images.push_back(std::move(image));
+                }
+                else
+                {
+                    std::cerr << "Failed to decode texture " << texturePath.C_Str() << std::endl;
+                }
+            }
+        }
+
+        materials.push_back(currentMat);
+    }
+}
+ 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\Importer\AssetImporter.h 
+======================================== 
+#pragma once
+
+#include <string>
+#include <vector>
+#include <glm/glm.hpp>
+#include "../Datas/DatasType.h"   // pour Mesh / Vertex
+
+struct aiScene;
+struct aiNode;
+struct aiMesh;
+
+class AssetImporter
+{
+public:
+    AssetImporter();
+
+    void LoadAsset(
+        const std::string& path,
+        std::vector<Mesh>& _tmp,
+        std::vector<glm::mat4x4>& transforms,
+        std::vector<DrawColor>& drawColor,
+        std::vector<MaterialData>& materials,
+        std::vector<ImageData>& images
+    );
+    bool loadSceneInMemory(const std::string& path);
+
+    void processNode(
+        const aiNode* node,
+        const aiScene* scene,
+        const glm::mat4& parentXf,
+        std::vector<Mesh>& _tmp,
+        std::vector<glm::mat4x4>& transforms,
+        std::vector<DrawColor>& drawColor
+    );
+
+    void processMesh(
+        aiMesh* mesh,
+        const aiScene* scene,
+        const glm::mat4& worldXf,
+        std::vector<Mesh>& _tmp,
+        std::vector<glm::mat4x4>& transforms,
+        std::vector<DrawColor>& drawColor
+    );
+
+    void processMaterials(
+        const aiScene* scene,
+        const std::string& assetPath,
+        std::vector<MaterialData>& materials,
+        std::vector<ImageData>& images
+    );
+
+};
+ 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\Testing\test.cpp 
+======================================== 
+ 
+ 
+======================================== 
+Fichier : C:\dev\Fri\DrumstaEngine\src\Testing\test.h 
+======================================== 
+ 
+ 

@@ -37,8 +37,15 @@ void Shader::createShaderProgram()
 
     if (vertexShader == 0 || fragmentShader == 0)
     {
-        if (vertexShader) glDeleteShader(vertexShader);
-        if (fragmentShader) glDeleteShader(fragmentShader);
+        if (vertexShader)
+        {
+            glDeleteShader(vertexShader);
+        }
+        if (fragmentShader)
+        {
+            glDeleteShader(fragmentShader);
+        }
+        return;
     }
 
     GLuint program = glCreateProgram();

@@ -9,24 +9,24 @@ struct Vertex {
 struct DrawMetadata {
     uint baseVertex;
     uint materialIndex;
-    uint padding0;
-    uint padding1;
+    uint textureIndex;   
+    uint padding;
 };
 
 struct DrawColor {
     float r, g, b, padding;
 };
 
-
 layout(std430, binding = 0) readonly buffer VertexBuffer    { Vertex vertices[]; };
 layout(std430, binding = 1) readonly buffer IndexBuffer     { uint indices[]; };
 layout(std430, binding = 2) readonly buffer TransformBuffer { mat4 transforms[]; };
 layout(std430, binding = 3) readonly buffer MetadataBuffer  { DrawMetadata metadata[]; };
-layout(std430, binding = 4) readonly buffer ColorBuffer  { DrawColor colors[]; };
+layout(std430, binding = 4) readonly buffer ColorBuffer     { DrawColor colors[]; };
 
 uniform mat4 viewProj;
 
 flat out uint fragMaterialIndex;
+flat out uint fragTextureIndex;
 out vec3 fragNormal;
 out vec3 fragWorldPos;
 out vec3 fragMeshCol;
@@ -34,9 +34,7 @@ out vec2 fragUV;
 
 void main()
 {
-
-    // Query SSBos based on draecall numerb
-    DrawMetadata meta = metadata[gl_DrawID]; 
+    DrawMetadata meta = metadata[gl_DrawID];
     DrawColor c = colors[gl_DrawID];
     fragMeshCol = vec3(c.r, c.g, c.b);
 
@@ -47,6 +45,7 @@ void main()
     vec3 position = vec3(v.x, v.y, v.z);
     vec3 normal   = vec3(v.nx, v.ny, v.nz);
     fragUV = vec2(v.u, v.v);
+
     mat4 model = transforms[gl_BaseInstance + gl_InstanceID];
     mat3 normalMatrix = mat3(transpose(inverse(model)));
 
@@ -54,6 +53,7 @@ void main()
     gl_Position = viewProj * worldPos;
 
     fragMaterialIndex = meta.materialIndex;
+    fragTextureIndex  = meta.textureIndex;
     fragNormal   = normalize(normalMatrix * normal);
     fragWorldPos = worldPos.xyz;
 }

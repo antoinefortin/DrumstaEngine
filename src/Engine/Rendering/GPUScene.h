@@ -34,23 +34,29 @@ public:
         const std::vector<uint32_t>& indices,
         const std::vector<glm::mat4>& transforms,
         const std::vector<DrawMetadata>& metadata,
-        const std::vector<DrawColor>& colors,
-        const std::vector<DrawArraysIndirectCommand>& commands
+        const std::vector<DrawColor>& colors,    
+        const std::vector<DrawArraysIndirectCommand>& commands,
+        //const std::vector<GLuint64>& textureHandles
+        const std::vector<ImageData>& images
     );
 
 
 private:
+
+    void UploadTextures(const std::vector<ImageData>& images);
+
     GLuint ssboVertex = 0;
     GLuint ssboIndex = 0;
     GLuint ssboTransform = 0;
     GLuint ssboMetadata = 0;
     GLuint ssboColor = 0;
-
+    GLuint ssboTextureHandles = 0;
     GLuint indirectBuffer = 0;
     GLuint vao = 0;
 
     GLsizei drawCount = 0;
-
+    std::vector<GLuint>   glTextures;
+    std::vector<GLuint64> textureHandles;
 };
 
 

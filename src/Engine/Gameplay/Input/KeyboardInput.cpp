@@ -34,3 +34,10 @@ bool KeyboardInput::IsKeyPressed(int key)
     auto it = keyStates.find(key);
     return it != keyStates.end() && it->second;
 }
+
+void KeyboardInput::debugShit()
+{
+
+
+    std::cout << "Keyboard shit" << std::endl;
+}

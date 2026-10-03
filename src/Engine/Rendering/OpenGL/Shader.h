@@ -35,7 +35,7 @@ private:
     GLuint vtxID;
     GLuint fragID;
 
-    GLuint shaderID;
+    GLuint shaderID = 0;
     GLuint compileShaderStage(
         const std::string& source,
         GLenum shaderType
