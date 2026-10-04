@@ -36,7 +36,7 @@ public:
 		"Assets/Shaders/newfrag.shader"
 	};
 
-	void Start();
+	bool Start();
 
 
 
@@ -56,7 +56,7 @@ private:
 		const std::string& name,
 		const std::string& path
 	);
-	void InitOpenGL();
+	bool InitOpenGL();
 
 
 	void initInputDevice();

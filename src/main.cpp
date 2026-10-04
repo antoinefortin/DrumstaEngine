@@ -94,13 +94,16 @@ void HandleCameraMovement(
 
 int main()
 {
-    void();
     Drumsta app{};
-    app.Start();
+    if (!app.Start())
+    {
+        std::cerr << "Failed to create an OpenGL window.\n";
+        return 1;
+    }
     app.ImportAsset("Assets/Models/texture.glb");
     app.InitScene();
 
     app.Run();
-    return 1;
+    return 0;
 
 }

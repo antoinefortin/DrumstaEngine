@@ -19,10 +19,12 @@ Drumsta::~Drumsta()
 }
 
 
-void Drumsta::Start()
+bool Drumsta::Start()
 {
-	InitOpenGL();
+	if (!InitOpenGL())
+		return false;
     initInputDevice();
+	return true;
 }
 
 
@@ -41,11 +43,10 @@ void Drumsta::loadTexture(
     it->second.UploadToGpu();
 }
 
-void Drumsta::InitOpenGL()
+bool Drumsta::InitOpenGL()
 {
 	m_glContext.setOpenGLContextDatas(1080, 720, "Engine", 4, 6);
-	bool status = m_glContext.initOpenGL();
-
+	return m_glContext.initOpenGL();
 }
 
 
@@ -57,6 +58,8 @@ void Drumsta::processInput()
 
 void Drumsta::Run()
 {
+    if (!m_glContext.window)
+        return;
 
     glm::vec3 cameraPos = glm::vec3(
         0.0f, 
@@ -107,17 +110,20 @@ void Drumsta::InitScene()
 {
 
     
-    if (!GLAD_GL_ARB_bindless_texture)
+    const bool bindless = GLAD_GL_ARB_bindless_texture != 0;
+    if (!bindless)
     {
-        std::cerr << "Update yourt GPU damn god !" << std::endl;
-        return;
+        std::cout << "GL_ARB_bindless_texture is unavailable. Binding one texture per mesh.\n";
     }
 
  //   m_textureHandles.resize(imageDatas.size());
 
 
     //loadTexture("palette", "Assets/Textures/palette.png");
-	Shader shader(vertexShaders[0], fragmentShaders[0]);
+	const char* fragmentPath = bindless
+		? fragmentShaders[0].c_str()
+		: "Assets/Shaders/frag_sampler.shader";
+	Shader shader(vertexShaders[0], fragmentPath);
 	shader.createShaderProgram();
 	GLuint gpuID = shader.getGPUID();
 	shadersPrograms["basicShader"] = gpuID;

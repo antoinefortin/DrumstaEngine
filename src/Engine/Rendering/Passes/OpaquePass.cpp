@@ -49,6 +49,23 @@ void OpaquePass::Execute(
     //    glBindVertexArray(vao);
 
     gpuScene.Bind();
-    gpuScene.Draw();
+    if (gpuScene.UsesBindless())
+    {
+        gpuScene.Draw();
+        return;
+    }
+
+    const GLint samplerLoc = glGetUniformLocation(shaderProgram, "uBaseColor");
+    const GLint hasTextureLoc = glGetUniformLocation(shaderProgram, "uHasTexture");
+    glUniform1i(samplerLoc, 0);
+
+    for (GLsizei draw = 0; draw < gpuScene.DrawCount(); ++draw)
+    {
+        const GLuint texture = gpuScene.TextureNameForDraw(draw);
+        glUniform1i(hasTextureLoc, texture != 0 ? 1 : 0);
+        if (texture != 0)
+            glBindTextureUnit(0, texture);
+        gpuScene.DrawOne(draw);
+    }
 }
 

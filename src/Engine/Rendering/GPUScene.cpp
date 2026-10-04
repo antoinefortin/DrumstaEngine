@@ -45,6 +45,8 @@ void GPUScene::Bind() const
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ssboTransform);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssboMetadata);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, ssboColor);
+    if (ssboTextureHandles)
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, ssboTextureHandles);
 
     glBindVertexArray(vao);
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer);
@@ -60,6 +62,19 @@ void GPUScene::Draw() const
         drawCount,
         0
     );
+}
+
+void GPUScene::DrawOne(GLsizei index) const
+{
+    const auto offset = static_cast<std::uintptr_t>(index) * sizeof(DrawArraysIndirectCommand);
+    glDrawArraysIndirect(GL_TRIANGLES, reinterpret_cast<const void*>(offset));
+}
+
+GLuint GPUScene::TextureNameForDraw(GLsizei index) const
+{
+    if (index < 0 || static_cast<size_t>(index) >= m_drawTextures.size())
+        return 0;
+    return m_drawTextures[static_cast<size_t>(index)];
 }
 
 
@@ -130,8 +145,18 @@ void GPUScene::Upload(
     // draew count GPOU side 
     drawCount = static_cast<GLsizei>(commands.size());
 
+    m_bindless = GLAD_GL_ARB_bindless_texture != 0;
+    m_drawTextures.assign(metadata.size(), 0);
+
     // SSBO Texture
     UploadTextures(images);
+
+    for (size_t i = 0; i < metadata.size(); ++i)
+    {
+        const uint32_t textureIndex = metadata[i].textureIndex;
+        if (textureIndex != 0xFFFFFFFFu && textureIndex < glTextures.size())
+            m_drawTextures[i] = glTextures[textureIndex];
+    }
 
 }
 
@@ -159,13 +184,17 @@ void GPUScene::UploadTextures(const std::vector<ImageData>& images)
         glTextureParameteri(tex, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTextureParameteri(tex, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-        GLuint64 handle = glGetTextureHandleARB(tex);
-        glMakeTextureHandleResidentARB(handle);
-
         glTextures[i] = tex;
-        textureHandles[i] = handle;
+        if (m_bindless)
+        {
+            GLuint64 handle = glGetTextureHandleARB(tex);
+            glMakeTextureHandleResidentARB(handle);
+            textureHandles[i] = handle;
+        }
     }
 
+    if (!m_bindless)
+        return;
 
     std::vector<GLuint64> handles = textureHandles;
     if (handles.empty())

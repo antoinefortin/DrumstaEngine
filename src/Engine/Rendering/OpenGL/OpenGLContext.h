@@ -9,6 +9,11 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#if defined(__linux__)
+#include <cstdlib>
+#include <unistd.h>
+#endif
+
 class OpenGLContext
 {
 public:
@@ -42,6 +47,21 @@ public:
 	}
 	bool initOpenGL()
 	{
+		glfwSetErrorCallback(glErrorCallback);
+		// WSLg exposes the GPU as /dev/dxg. Wayland asks Mesa for an EGL
+		// device, and Mesa answers with Zink against a Vulkan device that
+		// is not there. X11 plus the D3D12 Gallium driver creates the context.
+#if defined(__linux__)
+		const bool wslGpu = access("/dev/dxg", F_OK) == 0
+			&& access("/dev/dri", F_OK) != 0;
+		if (wslGpu)
+		{
+			if (!getenv("GALLIUM_DRIVER"))
+				setenv("GALLIUM_DRIVER", "d3d12", 0);
+			glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
+			std::cout << "WSL GPU: using X11 and the D3D12 OpenGL driver\n";
+		}
+#endif
 		if (!glfwInit())
 		{
 			std::cout << "Failed to init GLFW\n";
@@ -150,6 +170,11 @@ private:
 		}
 			
 	}
+	static void glErrorCallback(int code, const char* description)
+	{
+		std::cerr << "GLFW " << code << ": " << description << "\n";
+	}
+
 	static void APIENTRY glDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
 		GLsizei length, const GLchar* message, const void* userParam)
 	{

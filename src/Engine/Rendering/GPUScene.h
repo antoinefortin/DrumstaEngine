@@ -28,6 +28,11 @@ public:
 
     void Bind() const;
     void Draw() const;
+    void DrawOne(GLsizei index) const;
+
+    bool UsesBindless() const { return m_bindless; }
+    GLsizei DrawCount() const { return drawCount; }
+    GLuint TextureNameForDraw(GLsizei index) const;
 
     void Upload(
         const std::vector<Vertex>& vertices,
@@ -55,8 +60,10 @@ private:
     GLuint vao = 0;
 
     GLsizei drawCount = 0;
+    bool m_bindless = false;
     std::vector<GLuint>   glTextures;
     std::vector<GLuint64> textureHandles;
+    std::vector<GLuint>   m_drawTextures;
 };
 
 

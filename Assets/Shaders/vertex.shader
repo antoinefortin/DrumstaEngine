@@ -34,8 +34,8 @@ out vec2 fragUV;
 
 void main()
 {
-    DrawMetadata meta = metadata[gl_DrawID];
-    DrawColor c = colors[gl_DrawID];
+    DrawMetadata meta = metadata[gl_BaseInstance];
+    DrawColor c = colors[gl_BaseInstance];
     fragMeshCol = vec3(c.r, c.g, c.b);
 
     uint localIndex    = indices[gl_VertexID];
